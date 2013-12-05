@@ -57,43 +57,38 @@ public class StandardEventWatcher implements EventWatcher
     {
         while (true)
         {
-            WatchKey key = this.watchService.poll();
-
-            if (key != null)
+            WatchKey key = null;
+            try
             {
-                for (WatchEvent<?> pollEvent: key.pollEvents())
+                key = this.watchService.take();
+            } catch (InterruptedException e)
+            {
+                throw new EventWatcherException("Exception taking the key from the watch service", e);
+            }
+
+            for (WatchEvent<?> pollEvent: key.pollEvents())
+            {
+                WatchEvent.Kind<?> kind = pollEvent.kind();
+
+                if (kind == StandardWatchEventKinds.OVERFLOW) continue;
+
+                WatchEvent<Path> event = (WatchEvent<Path>) pollEvent;
+
+                Path path = event.context();
+
+                if(path.equals(this.fileToWatch.getFileName()))
                 {
-                    System.out.println("Poll Event: " + pollEvent);
-                    WatchEvent.Kind<?> kind = pollEvent.kind();
-
-    //                if (kind == StandardWatchEventKinds.OVERFLOW) continue;
-
-                    WatchEvent<Path> event = (WatchEvent<Path>) pollEvent;
-
-                    Path path = event.context();
-
-                    System.out.println(String.format("Path modified: %s", path.toString()));
+                    System.out.println(String.format("This is the file I'm interested in: %s", path.toString()));
                     System.out.println(String.format("Event: %s", kind));
-
-                    if(kind == StandardWatchEventKinds.ENTRY_CREATE)
-                    {
-
-                    }
-                    else if(kind == StandardWatchEventKinds.ENTRY_MODIFY)
-                    {
-
-                    }
-
                 }
+            }
 
-                // Reset the key -- this step is critical if you want to
-                // receive further watch events.  If the key is no longer valid,
-                // the directory is inaccessible so exit the loop.
-                boolean valid = key.reset();
-                if (!valid) {
-                    break;
-                }
-
+            // Reset the key -- this step is critical if you want to
+            // receive further watch events.  If the key is no longer valid,
+            // the directory is inaccessible so exit the loop.
+            boolean valid = key.reset();
+            if (!valid) {
+                break;
             }
         }
     }
