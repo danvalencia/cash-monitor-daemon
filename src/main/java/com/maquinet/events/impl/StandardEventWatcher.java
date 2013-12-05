@@ -83,7 +83,17 @@ public class StandardEventWatcher implements EventWatcher
                     {
 
                     }
+
                 }
+
+                // Reset the key -- this step is critical if you want to
+                // receive further watch events.  If the key is no longer valid,
+                // the directory is inaccessible so exit the loop.
+                boolean valid = key.reset();
+                if (!valid) {
+                    break;
+                }
+
             }
         }
     }
