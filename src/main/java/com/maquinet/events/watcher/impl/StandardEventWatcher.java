@@ -1,9 +1,14 @@
-package com.maquinet.events.impl;
+package com.maquinet.events.watcher.impl;
 
-import com.maquinet.events.EventWatcher;
+import com.maquinet.events.watcher.EventWatcher;
 import com.maquinet.events.exceptions.EventWatcherException;
+import com.maquinet.models.MaquinetEvent;
 import com.sun.nio.file.SensitivityWatchEventModifier;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -11,6 +16,8 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Daniel Valencia (daniel@tacitknowledge.com)
@@ -30,7 +37,7 @@ public class StandardEventWatcher implements EventWatcher
             this.fileToWatch = FileSystems.getDefault().getPath(fileToWatch);
             if(this.fileToWatch.toFile().isDirectory())
             {
-                throw new IllegalArgumentException(String.format("Path %s needs to be a file and it's a directory"));
+                throw new IllegalArgumentException(String.format("Path %s needs to be a file and it's a directory", fileToWatch));
             }
             this.directoryToWatch = this.fileToWatch.getParent();
         } catch (IOException e)
@@ -78,6 +85,7 @@ public class StandardEventWatcher implements EventWatcher
 
                 if(path.equals(this.fileToWatch.getFileName()))
                 {
+                    retrieveEventFromFile(path);
                     System.out.println(String.format("This is the file I'm interested in: %s", path.toString()));
                     System.out.println(String.format("Event: %s", kind));
                 }
@@ -91,5 +99,31 @@ public class StandardEventWatcher implements EventWatcher
                 break;
             }
         }
+    }
+
+    private void retrieveEventFromFile(Path path)
+    {
+        File eventFile = path.toFile();
+        BufferedReader eventFileReader;
+        String eventString;
+        List<MaquinetEvent> maquinetEvents = new ArrayList<>();
+        try
+        {
+            eventFileReader = new BufferedReader(new FileReader(eventFile));
+            while ((eventString = eventFileReader.readLine()) != null)
+            {
+                MaquinetEvent event = new MaquinetEvent(eventString);
+            }
+            eventFileReader.close();
+        } catch (FileNotFoundException e)
+        {
+            System.out.println(String.format("File %s was not found, can't retrieve event", eventFile.toString()));
+            return;
+        } catch (IOException e)
+        {
+            System.out.println(String.format("There was an error reading the file %s", eventFile.toString()));
+        }
+
+
     }
 }
