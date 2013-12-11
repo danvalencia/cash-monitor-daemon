@@ -1,4 +1,4 @@
-package com.maquinet.events.exceptions;
+package com.maquinet.exceptions;
 
 /**
  * @author Daniel Valencia (daniel@tacitknowledge.com)

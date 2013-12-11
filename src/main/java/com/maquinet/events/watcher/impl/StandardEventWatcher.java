@@ -1,22 +1,25 @@
 package com.maquinet.events.watcher.impl;
 
+import com.maquinet.events.processor.EventProcessor;
 import com.maquinet.events.watcher.EventWatcher;
-import com.maquinet.events.exceptions.EventWatcherException;
-import com.maquinet.models.MaquinetEvent;
+import com.maquinet.exceptions.EventWatcherException;
+import com.maquinet.models.Event;
+import com.maquinet.models.EventType;
 import com.sun.nio.file.SensitivityWatchEventModifier;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,12 +30,14 @@ public class StandardEventWatcher implements EventWatcher
     private final WatchService watchService;
     private final Path fileToWatch;
     private final Path directoryToWatch;
+    private final EventProcessor eventProcessor;
 
-    public StandardEventWatcher(String fileToWatch)
+    public StandardEventWatcher(String fileToWatch, EventProcessor eventProcessor)
     {
         System.out.println(String.format("File to watch is: %s", fileToWatch));
         try
         {
+            this.eventProcessor = eventProcessor;
             this.watchService = FileSystems.getDefault().newWatchService();
             this.fileToWatch = FileSystems.getDefault().getPath(fileToWatch);
             if(this.fileToWatch.toFile().isDirectory())
@@ -85,7 +90,7 @@ public class StandardEventWatcher implements EventWatcher
 
                 if(path.equals(this.fileToWatch.getFileName()))
                 {
-                    retrieveEventFromFile(path);
+                    retrieveEventsFromFile();
                     System.out.println(String.format("This is the file I'm interested in: %s", path.toString()));
                     System.out.println(String.format("Event: %s", kind));
                 }
@@ -101,29 +106,37 @@ public class StandardEventWatcher implements EventWatcher
         }
     }
 
-    private void retrieveEventFromFile(Path path)
+    private void retrieveEventsFromFile()
     {
-        File eventFile = path.toFile();
-        BufferedReader eventFileReader;
-        String eventString;
-        List<MaquinetEvent> maquinetEvents = new ArrayList<>();
+        List<Event> events = new ArrayList<>();
         try
         {
-            eventFileReader = new BufferedReader(new FileReader(eventFile));
-            while ((eventString = eventFileReader.readLine()) != null)
+            List<String> eventList = Files.readAllLines(this.fileToWatch, StandardCharsets.UTF_8);
+            Files.deleteIfExists(this.fileToWatch);
+            for (String eventString : eventList)
             {
-                MaquinetEvent event = new MaquinetEvent(eventString);
+                List<String> eventAttributes = parseEventAttributes(eventString);
+                if(eventAttributes.size() > 0)
+                {
+                    final String eventName = eventAttributes.get(0);
+                    Event event = EventType.resolveEventType(eventName).create(eventAttributes);
+                    events.add(event);
+                }
             }
-            eventFileReader.close();
+            this.eventProcessor.processEvents(events);
         } catch (FileNotFoundException e)
         {
-            System.out.println(String.format("File %s was not found, can't retrieve event", eventFile.toString()));
-            return;
+            System.out.println(String.format("File %s was not found, can't retrieve event", this.fileToWatch.toString()));
         } catch (IOException e)
         {
-            System.out.println(String.format("There was an error reading the file %s", eventFile.toString()));
+            System.out.println(String.format("There was an error reading the file %s", this.fileToWatch.toString()));
         }
-
-
     }
+
+    private static List<String> parseEventAttributes(String eventString)
+    {
+        String[] eventAttributesArray = eventString.split(Event.EVENT_STRING_SEPARATOR);
+        return Arrays.asList(eventAttributesArray);
+    }
+
 }
