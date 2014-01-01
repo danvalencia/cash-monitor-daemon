@@ -62,11 +62,13 @@ public class DefaultEventProcessor implements EventProcessor
                     try
                     {
                         noEventsCondition.await(10, TimeUnit.SECONDS);
-                    } catch (InterruptedException e)
+                    }
+                    catch (InterruptedException e)
                     {
                         e.printStackTrace();
                     }
-                }else
+                }
+                else
                 {
                     EventType eventType = event.getEventType();
                     LOGGER.info(String.format("Found Event with type: %s", eventType));
@@ -74,7 +76,8 @@ public class DefaultEventProcessor implements EventProcessor
                     LOGGER.info(String.format("About to execute command %s for event %s", command, event.getEventType()));
                     command.run();
                 }
-            }finally
+            }
+            finally
             {
                 lock.unlock();
             }

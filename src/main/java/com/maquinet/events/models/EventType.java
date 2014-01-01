@@ -1,7 +1,11 @@
 package com.maquinet.events.models;
 
 import com.maquinet.commands.Command;
+import com.maquinet.commands.EmptyCommand;
 import com.maquinet.commands.impl.CoinInsertCommand;
+import com.maquinet.commands.impl.ConfigurationUpdateCommand;
+import com.maquinet.commands.impl.CounterResetCommand;
+import com.maquinet.commands.impl.SessionCloseCommand;
 import com.maquinet.commands.impl.SessionCreateCommand;
 import com.maquinet.http.HttpService;
 import com.maquinet.services.EventService;
@@ -39,7 +43,7 @@ public enum EventType
         @Override
         public Command createCommand(Event event)
         {
-            return null;
+            return new SessionCloseCommand(getHttpService(), getSessionService(), getEventService(), event);
         }
     },
     COIN_INSERT("moneda_insertada")
@@ -67,7 +71,7 @@ public enum EventType
         @Override
         public Command createCommand(Event event)
         {
-            return null;
+            return new CounterResetCommand(getHttpService(), getSessionService(), getEventService(), event);
         }
     },
     CONFIG_UPDATE("configuracion_actualizada")
@@ -81,7 +85,7 @@ public enum EventType
         @Override
         public Command createCommand(Event event)
         {
-            return null;
+            return new ConfigurationUpdateCommand(getHttpService(), getSessionService(), getEventService(), event);
         }
     },
     EMPTY_EVENT("")
@@ -95,7 +99,7 @@ public enum EventType
         @Override
         public Command createCommand(Event event)
         {
-            return null;
+            return new EmptyCommand(getHttpService(), getSessionService(), getEventService(), event);
         }
     };
 

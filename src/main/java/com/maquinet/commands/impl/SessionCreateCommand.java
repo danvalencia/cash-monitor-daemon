@@ -30,7 +30,7 @@ import static com.maquinet.CashMonitorProperties.*;
  */
 public class SessionCreateCommand implements Command
 {
-    private static final Logger LOGGER = Logger.getLogger("SessionCreateCommand");
+    private static final Logger LOGGER = Logger.getLogger(SessionCreateCommand.class.getName());
 
     private final SessionService sessionService;
     private final HttpService httpService;
@@ -50,7 +50,6 @@ public class SessionCreateCommand implements Command
     {
         sessionService.deleteCurrentSession();
         UUID sessionUUID = UUID.randomUUID();
-        LOGGER.info(String.format("Running session create command for session %s", sessionUUID));
         Session session = new Session(sessionUUID.toString());
         if(sessionService.saveSession(session))
         {

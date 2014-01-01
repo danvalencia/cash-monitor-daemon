@@ -1,7 +1,6 @@
 package com.maquinet.commands.impl;
 
 import com.maquinet.commands.Command;
-import com.maquinet.events.models.CoinInsertEvent;
 import com.maquinet.events.models.Event;
 import com.maquinet.http.HttpService;
 import com.maquinet.models.Session;
@@ -23,21 +22,21 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.maquinet.CashMonitorProperties.*;
+import static com.maquinet.CashMonitorProperties.MACHINE_UUID;
 
 /**
  * @author Daniel Valencia (daniel@tacitknowledge.com)
  */
-public class CoinInsertCommand implements Command
+public class SessionCloseCommand implements Command
 {
-    private static final Logger LOGGER = Logger.getLogger(CoinInsertCommand.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(SessionCloseCommand.class.getName());
 
     private final SessionService sessionService;
     private final HttpService httpService;
     private final EventService eventService;
     private final Event event;
 
-    public CoinInsertCommand(HttpService httpService, SessionService sessionService, EventService eventService, Event event)
+    public SessionCloseCommand(HttpService httpService, SessionService sessionService, EventService eventService, Event event)
     {
         this.sessionService = sessionService;
         this.httpService = httpService;
@@ -48,16 +47,14 @@ public class CoinInsertCommand implements Command
     @Override
     public void run()
     {
-        Long globalCoinCount = ((CoinInsertEvent) event).getGlobalCoinCount();
         Session currentSession = sessionService.getCurrentSession();
-        if(currentSession == null)
+
+        if (currentSession == null)
         {
             deleteEvent();
         }
         else
         {
-            currentSession.incrementCoinCount();
-
             HttpClient httpClient = httpService.getHttpClient();
 
             String endpoint = String.format("%s/api/machines/%s/sessions/%s",
@@ -66,11 +63,11 @@ public class CoinInsertCommand implements Command
                     currentSession.getSessionUuid());
 
             HttpPut putRequest = new HttpPut(endpoint);
-
             List<NameValuePair> nameValuePairs = new ArrayList<>();
-            nameValuePairs.add(new BasicNameValuePair("coin_count", currentSession.getCoinCount().toString()));
-            nameValuePairs.add(new BasicNameValuePair("global_coin_count", globalCoinCount.toString()));
 
+            // Creation date is used as the end_time, because it refers to this event (SessionCloseEvent), and not
+            // to the session.
+            nameValuePairs.add(new BasicNameValuePair("end_time", event.formattedCreationDate()));
             putRequest.setEntity(new UrlEncodedFormEntity(nameValuePairs, StandardCharsets.UTF_8));
 
             LOGGER.info(String.format("Put request is %s", putRequest.toString()));
@@ -80,12 +77,12 @@ public class CoinInsertCommand implements Command
                 response = httpClient.execute(putRequest);
                 LOGGER.info(String.format("After executing put request.  Status code: %s", response.getStatusLine().getStatusCode()));
 
-                if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK)
+                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK)
                 {
                     deleteEvent();
-                    // Saving the current session to disk to update the coin count
-                    boolean sessionSaved = sessionService.saveSession(currentSession);
-                    LOGGER.info(String.format("After updating coin count sesssion has been saved: %s", sessionSaved));
+
+                    boolean sessionDeleted = sessionService.deleteCurrentSession();
+                    LOGGER.info(String.format("Current session has been deleted: %s", sessionDeleted));
                 }
             }
             catch (IOException e)
@@ -94,7 +91,7 @@ public class CoinInsertCommand implements Command
             }
             finally
             {
-                if(response != null && response instanceof CloseableHttpResponse)
+                if (response != null && response instanceof CloseableHttpResponse)
                 {
                     try
                     {
@@ -106,12 +103,14 @@ public class CoinInsertCommand implements Command
                     }
                 }
             }
+
+
         }
     }
 
     private void deleteEvent()
     {
         boolean eventDeleted = eventService.deleteEvent(event);
-        LOGGER.info(String.format("Coin Insert Event was deleted: %s", eventDeleted));
+        LOGGER.info(String.format("Session Close Event was deleted: %s", eventDeleted));
     }
 }

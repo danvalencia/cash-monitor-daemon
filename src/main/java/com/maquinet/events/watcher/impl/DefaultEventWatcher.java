@@ -34,17 +34,21 @@ public class DefaultEventWatcher implements EventWatcher
     public DefaultEventWatcher(String fileToWatch, EventProcessor eventProcessor)
     {
         System.out.println(String.format("File to watch is: %s", fileToWatch));
+
         try
         {
             this.eventProcessor = eventProcessor;
             this.watchService = FileSystems.getDefault().newWatchService();
             this.fileToWatch = FileSystems.getDefault().getPath(fileToWatch);
+
             if(this.fileToWatch.toFile().isDirectory())
             {
                 throw new IllegalArgumentException(String.format("Path %s needs to be a file and it's a directory", fileToWatch));
             }
+
             this.directoryToWatch = this.fileToWatch.getParent();
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             throw new EventWatcherException("There was an issue creating the watch service", e);
         }
@@ -59,7 +63,8 @@ public class DefaultEventWatcher implements EventWatcher
                                                             StandardWatchEventKinds.ENTRY_CREATE};
             this.directoryToWatch.register(this.watchService, kinds, SensitivityWatchEventModifier.HIGH);
             waitForFileChange();
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             throw new EventWatcherException("There was an issue registering the directory to watch", e);
         }
@@ -73,7 +78,8 @@ public class DefaultEventWatcher implements EventWatcher
             try
             {
                 key = this.watchService.take();
-            } catch (InterruptedException e)
+            }
+            catch (InterruptedException e)
             {
                 throw new EventWatcherException("Exception taking the key from the watch service", e);
             }
@@ -91,8 +97,6 @@ public class DefaultEventWatcher implements EventWatcher
                 if(path.equals(this.fileToWatch.getFileName()))
                 {
                     retrieveEventsFromFile();
-                    System.out.println(String.format("This is the file I'm interested in: %s", path.toString()));
-                    System.out.println(String.format("Event: %s", kind));
                 }
             }
 
@@ -109,13 +113,16 @@ public class DefaultEventWatcher implements EventWatcher
     private void retrieveEventsFromFile()
     {
         List<Event> events = new ArrayList<>();
+
         try
         {
             List<String> eventList = Files.readAllLines(this.fileToWatch, StandardCharsets.UTF_8);
             Files.deleteIfExists(this.fileToWatch);
+
             for (String eventString : eventList)
             {
                 List<String> eventAttributes = parseEventAttributes(eventString);
+
                 if(eventAttributes.size() > 0)
                 {
                     final String eventName = eventAttributes.get(0);
@@ -123,11 +130,14 @@ public class DefaultEventWatcher implements EventWatcher
                     events.add(event);
                 }
             }
+
             this.eventProcessor.submitEvents(events);
-        } catch (FileNotFoundException e)
+        }
+        catch (FileNotFoundException e)
         {
             System.out.println(String.format("File %s was not found, can't retrieve event", this.fileToWatch.toString()));
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             System.out.println(String.format("There was an error reading the file %s", this.fileToWatch.toString()));
         }

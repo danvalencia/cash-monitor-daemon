@@ -10,7 +10,7 @@ import java.util.logging.Logger;
  */
 public class SessionService
 {
-    private static final Logger LOGGER = Logger.getLogger("SessionService");
+    private static final Logger LOGGER = Logger.getLogger(SessionService.class.getName());
 
     private final SessionDAO sessionDAO;
 
@@ -21,25 +21,18 @@ public class SessionService
 
     public Session getCurrentSession()
     {
-        LOGGER.info("About to get current session from DB");
-        Session currentSession = sessionDAO.findFirst();
-        if(currentSession == null)
-        {
-            LOGGER.fine("Current session is null");
-        }
-        return currentSession;
+        return sessionDAO.findFirst();
     }
 
-    public void deleteCurrentSession()
+    public boolean deleteCurrentSession()
     {
-        boolean result = false;
+        boolean result = true;
         Session currentSession = getCurrentSession();
-        LOGGER.info("About to get current session from DB");
         if(currentSession != null)
         {
             result = sessionDAO.delete(currentSession);
-            LOGGER.fine(String.format("Result of deleting current session is %s", result));
         }
+        return result;
     }
 
     public boolean saveSession(Session session)
