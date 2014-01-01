@@ -1,48 +1,110 @@
 package com.maquinet;
 
 import com.maquinet.events.processor.EventProcessor;
-import com.maquinet.events.processor.impl.StandardEventProcessor;
-import com.maquinet.models.Event;
+import com.maquinet.events.processor.impl.DefaultEventProcessor;
+import com.maquinet.events.watcher.impl.DefaultEventWatcher;
+import com.maquinet.http.HttpService;
+import com.maquinet.http.impl.CashMonitorHttpService;
+import com.maquinet.models.EventType;
 import com.maquinet.persistence.EntityManagerUtils;
 import com.maquinet.events.watcher.EventWatcher;
-import com.maquinet.events.watcher.impl.StandardEventWatcher;
+import com.maquinet.persistence.impl.EventDAO;
+import com.maquinet.persistence.impl.SessionDAO;
+import com.maquinet.services.EventService;
+import com.maquinet.services.SessionService;
+import org.apache.http.impl.client.HttpClients;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Logger;
+import static com.maquinet.CashMonitorProperties.*;
 
 /**
  * @author Daniel Valencia (daniel@tacitknowledge.com)
  */
 public class CashMonitorDaemon
 {
+    private static final Logger LOGGER = Logger.getLogger("CashMonitorDaemon");
+
     public static void main(String[] args)
     {
-        if(args.length < 1)
+        loadAndValidateSystemProperties();
+
+        String fileToWatch = System.getProperty(EVENTS_FILE);
+        EntityManager entityManager = EntityManagerUtils.getEntityManagerFactory().createEntityManager();
+
+        EventDAO eventDAO = new EventDAO(entityManager);
+        EventService eventService = new EventService(eventDAO);
+        SessionDAO sessionDAO = new SessionDAO(entityManager);
+        SessionService sessionService = new SessionService(sessionDAO);
+
+        String cashmonitorEndpoint = System.getProperty(CASHMONITOR_ENDPOINT);
+        HttpService httpService = new CashMonitorHttpService(HttpClients.createDefault(), cashmonitorEndpoint);
+
+        initEventTypes(sessionService, httpService, eventService);
+
+        EventProcessor eventProcessor = new DefaultEventProcessor(eventService);
+
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(eventProcessor);
+
+        EventWatcher watcher = new DefaultEventWatcher(fileToWatch, eventProcessor);
+        watcher.watchFile();
+
+    }
+
+    private static void loadAndValidateSystemProperties()
+    {
+        String propertiesFilePath = System.getProperty(CASHMONITOR_PROPERTIES);
+        if(propertiesFilePath == null)
         {
             usage();
-            Runtime.getRuntime().exit(1);
+            System.exit(1);
         }
-        else
+
+        try
         {
-            String fileToWatch = args[0];
-//            EntityManager entityManager = EntityManagerUtils.getEntityManagerFactory().createEntityManager();
-//            Event event = new Event("sesion_creada,2013-12-05 05:29:29", );
-//            EntityTransaction transaction = entityManager.getTransaction();
-//            transaction.begin();
-//            entityManager.persist(event);
-//            transaction.commit();
+            Properties systemProperties = System.getProperties();
+            systemProperties.load(new FileInputStream(propertiesFilePath));
+            if(systemProperties.get(MACHINE_UUID) == null)
+            {
+                LOGGER.severe(String.format("Property %s is required", MACHINE_UUID));
+                System.exit(1);
+            } else if(systemProperties.get(CASHMONITOR_ENDPOINT) == null)
+            {
+                LOGGER.severe(String.format("Property %s is required", CASHMONITOR_ENDPOINT));
+                System.exit(1);
+            } else if(systemProperties.get(EVENTS_FILE) == null)
+            {
+                LOGGER.severe(String.format("Property %s is required", EVENTS_FILE));
+                System.exit(1);
+            }
 
-//            System.out.println("Event ID: " + event.getId());
 
-            EventProcessor eventProcessor = new StandardEventProcessor();
-            EventWatcher watcher = new StandardEventWatcher(fileToWatch, eventProcessor);
-            watcher.watchFile();
+        } catch (IOException e)
+        {
+            LOGGER.severe(String.format("Unable to load properties file with path %s", CASHMONITOR_PROPERTIES));
+            System.exit(1);
+        }
+    }
 
+    private static void initEventTypes(SessionService sessionService, HttpService httpService, EventService eventService)
+    {
+        for(EventType eventType : EventType.values())
+        {
+            eventType.setSessionService(sessionService);
+            eventType.setHttpService(httpService);
+            eventType.setEventService(eventService);
         }
     }
 
     private static void usage()
     {
-        System.out.println("Need to pass in the path to listen");
+        System.out.println("Usage: ");
+        System.out.println(String.format("       java -jar -D%s=/path/to/properties/file CashMonitorDaemon.jar", CASHMONITOR_PROPERTIES));
     }
 }

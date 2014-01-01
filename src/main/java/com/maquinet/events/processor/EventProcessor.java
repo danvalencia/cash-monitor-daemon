@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * @author Daniel Valencia (daniel@tacitknowledge.com)
  */
-public interface EventProcessor
+public interface EventProcessor extends Runnable
 {
-    void processEvents(List<Event> events);
+    void submitEvents(List<Event> events);
 }

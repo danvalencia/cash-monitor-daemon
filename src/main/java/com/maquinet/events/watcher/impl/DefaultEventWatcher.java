@@ -9,7 +9,6 @@ import com.sun.nio.file.SensitivityWatchEventModifier;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -25,14 +24,14 @@ import java.util.List;
 /**
  * @author Daniel Valencia (daniel@tacitknowledge.com)
  */
-public class StandardEventWatcher implements EventWatcher
+public class DefaultEventWatcher implements EventWatcher
 {
     private final WatchService watchService;
     private final Path fileToWatch;
     private final Path directoryToWatch;
     private final EventProcessor eventProcessor;
 
-    public StandardEventWatcher(String fileToWatch, EventProcessor eventProcessor)
+    public DefaultEventWatcher(String fileToWatch, EventProcessor eventProcessor)
     {
         System.out.println(String.format("File to watch is: %s", fileToWatch));
         try
@@ -56,7 +55,8 @@ public class StandardEventWatcher implements EventWatcher
     {
         try
         {
-            WatchEvent.Kind[] kinds = new WatchEvent.Kind[]{StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_CREATE};
+            WatchEvent.Kind[] kinds = new WatchEvent.Kind[]{StandardWatchEventKinds.ENTRY_MODIFY,
+                                                            StandardWatchEventKinds.ENTRY_CREATE};
             this.directoryToWatch.register(this.watchService, kinds, SensitivityWatchEventModifier.HIGH);
             waitForFileChange();
         } catch (IOException e)
@@ -69,7 +69,7 @@ public class StandardEventWatcher implements EventWatcher
     {
         while (true)
         {
-            WatchKey key = null;
+            WatchKey key;
             try
             {
                 key = this.watchService.take();
@@ -119,11 +119,11 @@ public class StandardEventWatcher implements EventWatcher
                 if(eventAttributes.size() > 0)
                 {
                     final String eventName = eventAttributes.get(0);
-                    Event event = EventType.resolveEventType(eventName).create(eventAttributes);
+                    Event event = EventType.resolveEventType(eventName).createEvent(eventAttributes);
                     events.add(event);
                 }
             }
-            this.eventProcessor.processEvents(events);
+            this.eventProcessor.submitEvents(events);
         } catch (FileNotFoundException e)
         {
             System.out.println(String.format("File %s was not found, can't retrieve event", this.fileToWatch.toString()));
