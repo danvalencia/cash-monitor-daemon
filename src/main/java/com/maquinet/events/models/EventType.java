@@ -85,7 +85,7 @@ public enum EventType
         @Override
         public Command createCommand(Event event)
         {
-            return new ConfigurationUpdateCommand(getHttpService(), getSessionService(), getEventService(), event);
+            return new ConfigurationUpdateCommand(getHttpService(), getEventService(), event);
         }
     },
     EMPTY_EVENT("")
