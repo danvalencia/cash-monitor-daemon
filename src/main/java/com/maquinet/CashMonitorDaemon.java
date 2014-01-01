@@ -5,7 +5,7 @@ import com.maquinet.events.processor.impl.DefaultEventProcessor;
 import com.maquinet.events.watcher.impl.DefaultEventWatcher;
 import com.maquinet.http.HttpService;
 import com.maquinet.http.impl.CashMonitorHttpService;
-import com.maquinet.models.EventType;
+import com.maquinet.events.models.EventType;
 import com.maquinet.persistence.EntityManagerUtils;
 import com.maquinet.events.watcher.EventWatcher;
 import com.maquinet.persistence.impl.EventDAO;

@@ -3,8 +3,8 @@ package com.maquinet.events.watcher.impl;
 import com.maquinet.events.processor.EventProcessor;
 import com.maquinet.events.watcher.EventWatcher;
 import com.maquinet.exceptions.EventWatcherException;
-import com.maquinet.models.Event;
-import com.maquinet.models.EventType;
+import com.maquinet.events.models.Event;
+import com.maquinet.events.models.EventType;
 import com.sun.nio.file.SensitivityWatchEventModifier;
 
 import java.io.FileNotFoundException;

@@ -1,6 +1,6 @@
 package com.maquinet.services;
 
-import com.maquinet.models.Event;
+import com.maquinet.events.models.Event;
 import com.maquinet.persistence.impl.EventDAO;
 
 import java.util.List;

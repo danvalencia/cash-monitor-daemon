@@ -1,6 +1,6 @@
 package com.maquinet.events.processor;
 
-import com.maquinet.models.Event;
+import com.maquinet.events.models.Event;
 
 import java.util.List;
 

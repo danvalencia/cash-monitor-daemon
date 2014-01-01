@@ -1,4 +1,4 @@
-package com.maquinet.models;
+package com.maquinet.events.models;
 
 import javax.persistence.Entity;
 import java.util.List;
@@ -7,9 +7,9 @@ import java.util.List;
  * @author Daniel Valencia (daniel@tacitknowledge.com)
  */
 @Entity
-public class EmptyEvent extends Event
+public class SessionCloseEvent extends Event
 {
-    public EmptyEvent(List<String> attributes, EventType eventType)
+    public SessionCloseEvent(List<String> attributes, EventType eventType)
     {
         super(attributes, eventType);
     }

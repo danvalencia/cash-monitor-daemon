@@ -6,7 +6,7 @@
 
         <description>JavaDB Persistence Unit</description>
         <!-- This is where we tell JPA/Hibernate about our @Entity objects -->
-        <class>com.maquinet.models.Event</class>
+        <class>com.maquinet.events.models.Event</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>

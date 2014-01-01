@@ -1,4 +1,4 @@
-package com.maquinet.models;
+package com.maquinet.events.models;
 
 import org.hibernate.annotations.Immutable;
 

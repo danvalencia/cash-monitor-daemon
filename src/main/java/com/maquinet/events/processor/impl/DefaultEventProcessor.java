@@ -2,13 +2,11 @@ package com.maquinet.events.processor.impl;
 
 import com.maquinet.commands.Command;
 import com.maquinet.events.processor.EventProcessor;
-import com.maquinet.models.Event;
-import com.maquinet.models.EventType;
+import com.maquinet.events.models.Event;
+import com.maquinet.events.models.EventType;
 import com.maquinet.services.EventService;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;

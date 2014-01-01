@@ -1,6 +1,6 @@
 package com.maquinet.persistence.impl;
 
-import com.maquinet.models.Event;
+import com.maquinet.events.models.Event;
 import com.maquinet.persistence.EntityDAO;
 
 import javax.persistence.EntityManager;

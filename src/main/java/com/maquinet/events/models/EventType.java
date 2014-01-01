@@ -1,6 +1,7 @@
-package com.maquinet.models;
+package com.maquinet.events.models;
 
 import com.maquinet.commands.Command;
+import com.maquinet.commands.impl.CoinInsertCommand;
 import com.maquinet.commands.impl.SessionCreateCommand;
 import com.maquinet.http.HttpService;
 import com.maquinet.services.EventService;
@@ -52,7 +53,7 @@ public enum EventType
         @Override
         public Command createCommand(Event event)
         {
-            return null;
+            return new CoinInsertCommand(getHttpService(), getSessionService(), getEventService(), event);
         }
     },
     COUNTER_RESET("contador_reseteado")

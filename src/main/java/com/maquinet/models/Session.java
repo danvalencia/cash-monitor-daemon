@@ -15,12 +15,18 @@ public class Session
 {
     private String sessionUuid;
     private Long id;
-
+    private Long coinCount = new Long(1);
     private Date createdDate = new Date();
+    private Date endDate;
 
     public Session(String sessionUuid)
     {
         this.sessionUuid = sessionUuid;
+    }
+
+    public void incrementCoinCount()
+    {
+        coinCount++;
     }
 
     @Id
@@ -53,5 +59,25 @@ public class Session
     public void setSessionUuid(String sessionUuid)
     {
         this.sessionUuid = sessionUuid;
+    }
+
+    public Long getCoinCount()
+    {
+        return coinCount;
+    }
+
+    public void setCoinCount(Long coinCount)
+    {
+        this.coinCount = coinCount;
+    }
+
+    public Date getEndDate()
+    {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate)
+    {
+        this.endDate = endDate;
     }
 }
