@@ -28,7 +28,7 @@ import static com.maquinet.CashMonitorProperties.*;
  */
 public class CashMonitorDaemon
 {
-    private static final Logger LOGGER = Logger.getLogger("CashMonitorDaemon");
+    private static final Logger LOGGER = Logger.getLogger(CashMonitorDaemon.class.getName());
 
     public static void main(String[] args)
     {
