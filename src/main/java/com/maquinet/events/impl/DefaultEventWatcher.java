@@ -1,7 +1,7 @@
-package com.maquinet.events.watcher.impl;
+package com.maquinet.events.impl;
 
-import com.maquinet.events.processor.EventProcessor;
-import com.maquinet.events.watcher.EventWatcher;
+import com.maquinet.events.EventProcessor;
+import com.maquinet.events.EventWatcher;
 import com.maquinet.exceptions.EventWatcherException;
 import com.maquinet.events.models.Event;
 import com.maquinet.events.models.EventType;

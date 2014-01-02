@@ -1,7 +1,7 @@
-package com.maquinet.events.processor.impl;
+package com.maquinet.events.impl;
 
 import com.maquinet.commands.Command;
-import com.maquinet.events.processor.EventProcessor;
+import com.maquinet.events.EventProcessor;
 import com.maquinet.events.models.Event;
 import com.maquinet.events.models.EventType;
 import com.maquinet.services.EventService;

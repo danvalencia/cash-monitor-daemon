@@ -1,4 +1,4 @@
-package com.maquinet.events.processor;
+package com.maquinet.events;
 
 import com.maquinet.events.models.Event;
 

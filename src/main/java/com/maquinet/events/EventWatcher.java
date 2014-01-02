@@ -1,4 +1,4 @@
-package com.maquinet.events.watcher;
+package com.maquinet.events;
 
 /**
  * @author Daniel Valencia (daniel@tacitknowledge.com)

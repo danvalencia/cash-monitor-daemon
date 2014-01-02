@@ -1,13 +1,13 @@
 package com.maquinet;
 
-import com.maquinet.events.processor.EventProcessor;
-import com.maquinet.events.processor.impl.DefaultEventProcessor;
-import com.maquinet.events.watcher.impl.DefaultEventWatcher;
-import com.maquinet.http.HttpService;
-import com.maquinet.http.impl.CashMonitorHttpService;
+import com.maquinet.events.EventProcessor;
+import com.maquinet.events.impl.DefaultEventProcessor;
+import com.maquinet.events.impl.DefaultEventWatcher;
+import com.maquinet.services.HttpService;
+import com.maquinet.services.impl.CashMonitorHttpService;
 import com.maquinet.events.models.EventType;
 import com.maquinet.persistence.EntityManagerUtils;
-import com.maquinet.events.watcher.EventWatcher;
+import com.maquinet.events.EventWatcher;
 import com.maquinet.persistence.impl.EventDAO;
 import com.maquinet.persistence.impl.SessionDAO;
 import com.maquinet.services.EventService;

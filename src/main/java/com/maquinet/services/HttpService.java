@@ -1,4 +1,4 @@
-package com.maquinet.http;
+package com.maquinet.services;
 
 import org.apache.http.client.HttpClient;
 

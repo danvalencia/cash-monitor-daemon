@@ -7,7 +7,7 @@ import com.maquinet.commands.impl.ConfigurationUpdateCommand;
 import com.maquinet.commands.impl.CounterResetCommand;
 import com.maquinet.commands.impl.SessionCloseCommand;
 import com.maquinet.commands.impl.SessionCreateCommand;
-import com.maquinet.http.HttpService;
+import com.maquinet.services.HttpService;
 import com.maquinet.services.EventService;
 import com.maquinet.services.SessionService;
 

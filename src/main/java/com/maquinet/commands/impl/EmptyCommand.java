@@ -2,7 +2,7 @@ package com.maquinet.commands.impl;
 
 import com.maquinet.commands.Command;
 import com.maquinet.events.models.Event;
-import com.maquinet.http.HttpService;
+import com.maquinet.services.HttpService;
 import com.maquinet.services.EventService;
 import com.maquinet.services.SessionService;
 

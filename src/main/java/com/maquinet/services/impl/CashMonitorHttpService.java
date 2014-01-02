@@ -1,6 +1,6 @@
-package com.maquinet.http.impl;
+package com.maquinet.services.impl;
 
-import com.maquinet.http.HttpService;
+import com.maquinet.services.HttpService;
 import org.apache.http.client.HttpClient;
 
 /**

@@ -3,7 +3,7 @@ package com.maquinet.commands.impl;
 import com.maquinet.commands.Command;
 import com.maquinet.events.models.ConfigurationUpdateEvent;
 import com.maquinet.events.models.Event;
-import com.maquinet.http.HttpService;
+import com.maquinet.services.HttpService;
 import com.maquinet.services.EventService;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
