@@ -12,6 +12,8 @@ public class ConfigurationUpdateEvent extends Event
     private Long coinValue;
     private Long coinTime;
 
+    public ConfigurationUpdateEvent(){}
+
     public ConfigurationUpdateEvent(List<String> attributes, EventType eventType)
     {
         super(attributes, eventType);

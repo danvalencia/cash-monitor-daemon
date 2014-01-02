@@ -9,6 +9,8 @@ import java.util.List;
 @Entity
 public class EmptyEvent extends Event
 {
+    public EmptyEvent(){}
+
     public EmptyEvent(List<String> attributes, EventType eventType)
     {
         super(attributes, eventType);

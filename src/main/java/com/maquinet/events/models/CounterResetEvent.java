@@ -9,6 +9,8 @@ import java.util.List;
 @Entity
 public class CounterResetEvent extends Event
 {
+    public CounterResetEvent(){}
+
     public CounterResetEvent(List<String> attributes, EventType eventType)
     {
         super(attributes, eventType);

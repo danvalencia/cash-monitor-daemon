@@ -19,6 +19,8 @@ public class Session
     private Date createdDate = new Date();
     private Date endDate;
 
+    public Session() {}
+
     public Session(String sessionUuid)
     {
         this.sessionUuid = sessionUuid;

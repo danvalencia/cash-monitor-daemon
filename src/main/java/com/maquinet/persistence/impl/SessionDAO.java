@@ -16,7 +16,7 @@ public class SessionDAO implements EntityDAO<Session>
 {
     private final EntityManager entityManager;
 
-    private static final Logger LOGGER = Logger.getLogger("SessionDAO");
+    private static final Logger LOGGER = Logger.getLogger(SessionDAO.class.getName());
 
     public SessionDAO(EntityManager entityManager)
     {

@@ -9,6 +9,8 @@ import java.util.List;
 @Entity
 public class SessionCreateEvent extends Event
 {
+    public SessionCreateEvent(){}
+
     public SessionCreateEvent(List<String> attributes, EventType eventType)
     {
         super(attributes, eventType);
