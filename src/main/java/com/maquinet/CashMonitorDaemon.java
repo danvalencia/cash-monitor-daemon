@@ -74,18 +74,21 @@ public class CashMonitorDaemon
             {
                 LOGGER.severe(String.format("Property %s is required", MACHINE_UUID));
                 System.exit(1);
-            } else if(systemProperties.get(CASHMONITOR_ENDPOINT) == null)
+            }
+            else if(systemProperties.get(CASHMONITOR_ENDPOINT) == null)
             {
                 LOGGER.severe(String.format("Property %s is required", CASHMONITOR_ENDPOINT));
                 System.exit(1);
-            } else if(systemProperties.get(EVENTS_FILE) == null)
+            }
+            else if(systemProperties.get(EVENTS_FILE) == null)
             {
                 LOGGER.severe(String.format("Property %s is required", EVENTS_FILE));
                 System.exit(1);
             }
 
 
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             LOGGER.severe(String.format("Unable to load properties file with path %s", CASHMONITOR_PROPERTIES));
             System.exit(1);
