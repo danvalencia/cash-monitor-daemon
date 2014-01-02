@@ -1,7 +1,7 @@
 package com.maquinet.events.models;
 
 import com.maquinet.commands.Command;
-import com.maquinet.commands.EmptyCommand;
+import com.maquinet.commands.impl.EmptyCommand;
 import com.maquinet.commands.impl.CoinInsertCommand;
 import com.maquinet.commands.impl.ConfigurationUpdateCommand;
 import com.maquinet.commands.impl.CounterResetCommand;

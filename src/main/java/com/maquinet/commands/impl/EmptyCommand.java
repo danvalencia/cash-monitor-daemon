@@ -1,5 +1,6 @@
-package com.maquinet.commands;
+package com.maquinet.commands.impl;
 
+import com.maquinet.commands.Command;
 import com.maquinet.events.models.Event;
 import com.maquinet.http.HttpService;
 import com.maquinet.services.EventService;
