@@ -97,23 +97,25 @@ public class EventDAO implements EntityDAO<Event>
     public boolean saveAll(List<Event> events)
     {
         boolean result = false;
-        EntityTransaction transaction = entityManager.getTransaction();
-        try
+        if(events.size() > 0)
         {
-            transaction.begin();
-            for(Event event : events)
+            EntityTransaction transaction = entityManager.getTransaction();
+            try
             {
-                entityManager.persist(event);
+                transaction.begin();
+                for(Event event : events)
+                {
+                    entityManager.persist(event);
+                }
+                transaction.commit();
+                result = true;
+            } catch (Exception e)
+            {
+                transaction.rollback();
+                LOGGER.log(Level.SEVERE, String.format("There was an exception trying to persist events %s", events), e);
+                e.printStackTrace();
             }
-            transaction.commit();
-            result = true;
-        } catch (Exception e)
-        {
-            transaction.rollback();
-            LOGGER.log(Level.SEVERE, String.format("There was an exception trying to persist events %s", events), e);
-            e.printStackTrace();
         }
         return result;
-
     }
 }

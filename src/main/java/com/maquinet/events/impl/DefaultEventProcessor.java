@@ -40,7 +40,8 @@ public class DefaultEventProcessor implements EventProcessor
         {
             eventService.saveAllEvents(events);
             noEventsCondition.signal();
-        }finally
+        }
+        finally
         {
             lock.unlock();
         }
