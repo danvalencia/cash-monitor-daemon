@@ -7,7 +7,7 @@ import javax.persistence.Table;
 import java.util.Date;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 @Entity
 @Table(name = "SESSIONS")

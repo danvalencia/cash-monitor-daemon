@@ -3,7 +3,7 @@ package com.maquinet.persistence;
 import java.util.List;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public interface EntityDAO<T>
 {

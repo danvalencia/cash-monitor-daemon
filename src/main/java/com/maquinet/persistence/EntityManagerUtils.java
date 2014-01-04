@@ -4,7 +4,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public class EntityManagerUtils
 {

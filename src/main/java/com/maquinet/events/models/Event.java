@@ -20,7 +20,7 @@ import java.util.Locale;
 import java.util.logging.Logger;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 @Entity
 @Immutable
@@ -65,7 +65,8 @@ public abstract class Event
         try
         {
             return SIMPLE_DATE_FORMAT.parse(eventCreationString);
-        } catch (ParseException e)
+        }
+        catch (ParseException e)
         {
             throw new IllegalArgumentException(String.format("Issue parsing event creation date: %s", eventCreationString), e);
         }

@@ -1,7 +1,7 @@
 package com.maquinet;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public interface CashMonitorProperties
 {

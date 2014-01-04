@@ -5,7 +5,7 @@ import com.maquinet.events.models.Event;
 import java.util.List;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public interface EventProcessor extends Runnable
 {

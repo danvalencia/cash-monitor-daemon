@@ -14,16 +14,14 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public class DefaultEventProcessor implements EventProcessor
 {
-    private static final Logger LOGGER = Logger.getLogger("DefaultEventProcessor");
+    private static final Logger LOGGER = Logger.getLogger(DefaultEventProcessor.class.getName());
 
     private final EventService eventService;
-
     private final Lock lock;
-
     private final Condition noEventsCondition;
 
 

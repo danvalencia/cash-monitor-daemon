@@ -9,7 +9,7 @@ import com.maquinet.services.SessionService;
 import java.util.logging.Logger;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public class CounterResetCommand implements Command
 {

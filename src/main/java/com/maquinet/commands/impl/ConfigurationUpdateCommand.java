@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 import static com.maquinet.CashMonitorProperties.MACHINE_UUID;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public class ConfigurationUpdateCommand implements Command
 {

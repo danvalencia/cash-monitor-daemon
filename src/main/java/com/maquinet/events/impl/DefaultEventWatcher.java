@@ -20,12 +20,16 @@ import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public class DefaultEventWatcher implements EventWatcher
 {
+    private static final Logger LOGGER = Logger.getLogger(DefaultEventWatcher.class.getName());
+
     private final WatchService watchService;
     private final Path fileToWatch;
     private final Path directoryToWatch;
@@ -33,7 +37,7 @@ public class DefaultEventWatcher implements EventWatcher
 
     public DefaultEventWatcher(String fileToWatch, EventProcessor eventProcessor)
     {
-        System.out.println(String.format("File to watch is: %s", fileToWatch));
+        LOGGER.info(String.format("File to watch is: %s", fileToWatch));
 
         try
         {
@@ -126,8 +130,16 @@ public class DefaultEventWatcher implements EventWatcher
                 if(eventAttributes.size() > 0)
                 {
                     final String eventName = eventAttributes.get(0);
-                    Event event = EventType.resolveEventType(eventName).createEvent(eventAttributes);
-                    events.add(event);
+
+                    try
+                    {
+                        Event event = EventType.resolveEventType(eventName).createEvent(eventAttributes);
+                        events.add(event);
+                    }
+                    catch (RuntimeException e)
+                    {
+                        LOGGER.log(Level.SEVERE, String.format("Ignoring creation of event with name %s because of exception", eventName), e);
+                    }
                 }
             }
 
@@ -135,15 +147,15 @@ public class DefaultEventWatcher implements EventWatcher
         }
         catch (FileNotFoundException e)
         {
-            System.out.println(String.format("File %s was not found, can't retrieve event", this.fileToWatch.toString()));
+            LOGGER.log(Level.SEVERE, String.format("File %s was not found, can't retrieve event", this.fileToWatch.toString()), e);
         }
         catch (IOException e)
         {
-            System.out.println(String.format("There was an error reading the file %s", this.fileToWatch.toString()));
+            LOGGER.log(Level.SEVERE, String.format("There was an error reading the file %s", this.fileToWatch.toString()), e);
         }
     }
 
-    private static List<String> parseEventAttributes(String eventString)
+    private List<String> parseEventAttributes(String eventString)
     {
         String[] eventAttributesArray = eventString.split(Event.EVENT_STRING_SEPARATOR);
         return Arrays.asList(eventAttributesArray);

@@ -14,7 +14,7 @@ import com.maquinet.services.SessionService;
 import java.util.List;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public enum EventType
 {
@@ -104,11 +104,10 @@ public enum EventType
     };
 
     private String name;
-
     private SessionService sessionService;
-
     private HttpService httpService;
     private EventService eventService;
+
     private EventType(String name)
     {
         this.name = name;

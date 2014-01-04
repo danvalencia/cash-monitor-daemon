@@ -7,12 +7,16 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public class EventDAO implements EntityDAO<Event>
 {
+    private static final Logger LOGGER = Logger.getLogger(EventDAO.class.getName());
+
     private final EntityManager entityManager;
 
     public EventDAO(EntityManager entityManager)
@@ -63,7 +67,7 @@ public class EventDAO implements EntityDAO<Event>
         } catch (Exception e)
         {
             transaction.rollback();
-            System.out.println(String.format("There was an exception trying to persist event %s", event));
+            LOGGER.log(Level.SEVERE, String.format("There was an exception trying to persist event %s", event), e);
             e.printStackTrace();
         }
         return result;
@@ -83,7 +87,7 @@ public class EventDAO implements EntityDAO<Event>
         } catch (Exception e)
         {
             transaction.rollback();
-            System.out.println(String.format("Unable to delete event %s", event));
+            LOGGER.log(Level.SEVERE, String.format("Unable to delete event %s", event), e);
             e.printStackTrace();
         }
         return result;
@@ -106,7 +110,7 @@ public class EventDAO implements EntityDAO<Event>
         } catch (Exception e)
         {
             transaction.rollback();
-            System.out.println(String.format("There was an exception trying to persist events %s", events));
+            LOGGER.log(Level.SEVERE, String.format("There was an exception trying to persist events %s", events), e);
             e.printStackTrace();
         }
         return result;

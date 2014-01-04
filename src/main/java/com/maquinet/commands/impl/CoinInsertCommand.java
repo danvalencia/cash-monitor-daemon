@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 import static com.maquinet.CashMonitorProperties.*;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public class CoinInsertCommand implements Command
 {

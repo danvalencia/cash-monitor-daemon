@@ -1,7 +1,7 @@
 package com.maquinet.exceptions;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public class EventWatcherException extends RuntimeException
 {

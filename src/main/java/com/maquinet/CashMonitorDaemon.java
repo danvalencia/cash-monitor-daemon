@@ -3,6 +3,7 @@ package com.maquinet;
 import com.maquinet.events.EventProcessor;
 import com.maquinet.events.impl.DefaultEventProcessor;
 import com.maquinet.events.impl.DefaultEventWatcher;
+import com.maquinet.exceptions.EventWatcherException;
 import com.maquinet.services.HttpService;
 import com.maquinet.services.impl.CashMonitorHttpService;
 import com.maquinet.events.models.EventType;
@@ -20,11 +21,12 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import static com.maquinet.CashMonitorProperties.*;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public class CashMonitorDaemon
 {
@@ -54,7 +56,6 @@ public class CashMonitorDaemon
 
         EventWatcher watcher = new DefaultEventWatcher(fileToWatch, eventProcessor);
         watcher.watchFile();
-
     }
 
     private static void loadAndValidateSystemProperties()

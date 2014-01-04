@@ -6,7 +6,7 @@ import com.maquinet.persistence.impl.SessionDAO;
 import java.util.logging.Logger;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public class SessionService
 {

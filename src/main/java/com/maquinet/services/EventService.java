@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public class EventService
 {
-    private static final Logger LOGGER = Logger.getLogger("EventService");
+    private static final Logger LOGGER = Logger.getLogger(EventService.class.getName());
 
     private final EventDAO eventDAO;
 

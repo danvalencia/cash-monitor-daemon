@@ -4,7 +4,7 @@ import com.maquinet.services.HttpService;
 import org.apache.http.client.HttpClient;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public class CashMonitorHttpService implements HttpService
 {

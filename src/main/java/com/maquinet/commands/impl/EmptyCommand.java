@@ -7,7 +7,7 @@ import com.maquinet.services.EventService;
 import com.maquinet.services.SessionService;
 
 /**
- * @author Daniel Valencia (daniel@tacitknowledge.com)
+ * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public class EmptyCommand implements Command
 {
