@@ -7,6 +7,7 @@ import com.maquinet.services.HttpService;
 import com.maquinet.models.Session;
 import com.maquinet.services.EventService;
 import com.maquinet.services.SessionService;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -78,7 +79,10 @@ public class CoinInsertCommand implements Command
             try
             {
                 response = httpClient.execute(putRequest);
-                LOGGER.info(String.format("After executing put request.  Status code: %s", response.getStatusLine().getStatusCode()));
+                int statusCode = response.getStatusLine().getStatusCode();
+                String responseBody = IOUtils.toString(response.getEntity().getContent());
+
+                LOGGER.info(String.format("After executing put request.  Status code: %s", statusCode));
 
                 if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK)
                 {
@@ -87,6 +91,19 @@ public class CoinInsertCommand implements Command
                     boolean sessionSaved = sessionService.saveSession(currentSession);
                     LOGGER.info(String.format("After updating coin count sesssion has been saved: %s", sessionSaved));
                 }
+                else if(statusCode == HttpStatus.SC_NOT_FOUND ||
+                        statusCode == HttpStatus.SC_BAD_REQUEST)
+                {
+                    // There's not a lot we can do about this, but delete the event to avoid infinite loops.
+                    deleteEvent();
+                    LOGGER.info(String.format("Session %s could not be updated. Response is: %s ", currentSession.getSessionUuid(), responseBody));
+                }
+                else
+                {
+                    //Means it's a 500, in which case we retry
+                    LOGGER.info(String.format("Session %s could not be updated. Response is: %s ", currentSession.getSessionUuid(), responseBody));
+                }
+
             }
             catch (IOException e)
             {

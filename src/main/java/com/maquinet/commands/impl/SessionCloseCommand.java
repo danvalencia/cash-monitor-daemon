@@ -6,6 +6,7 @@ import com.maquinet.services.HttpService;
 import com.maquinet.models.Session;
 import com.maquinet.services.EventService;
 import com.maquinet.services.SessionService;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -75,14 +76,28 @@ public class SessionCloseCommand implements Command
             try
             {
                 response = httpClient.execute(putRequest);
-                LOGGER.info(String.format("After executing put request.  Status code: %s", response.getStatusLine().getStatusCode()));
+                int statusCode = response.getStatusLine().getStatusCode();
+                String responseBody = IOUtils.toString(response.getEntity().getContent());
+                LOGGER.info(String.format("After executing put request.  Status code: %s", statusCode));
 
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK)
+                if (statusCode == HttpStatus.SC_OK)
                 {
                     deleteEvent();
 
                     boolean sessionDeleted = sessionService.deleteCurrentSession();
                     LOGGER.info(String.format("Current session has been deleted: %s", sessionDeleted));
+                }
+                else if(statusCode == HttpStatus.SC_NOT_FOUND ||
+                        statusCode == HttpStatus.SC_BAD_REQUEST)
+                {
+                    // There's not a lot we can do about this, but delete the event to avoid infinite loops.
+                    deleteEvent();
+                    LOGGER.info(String.format("Session %s could not be closed. Response is: %s ", currentSession.getSessionUuid(), responseBody));
+                }
+                else
+                {
+                    LOGGER.info(String.format("Session %s could not be closed. Response is: %s ", currentSession.getSessionUuid(), responseBody));
+                    //Means it's a 500, in which case we retry
                 }
             }
             catch (IOException e)

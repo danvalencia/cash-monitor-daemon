@@ -6,6 +6,7 @@ import com.maquinet.events.models.Event;
 import com.maquinet.models.Session;
 import com.maquinet.services.EventService;
 import com.maquinet.services.SessionService;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -50,8 +51,8 @@ public class SessionCreateCommand implements Command
     {
         sessionService.deleteCurrentSession();
         UUID sessionUUID = UUID.randomUUID();
-        Session session = new Session(sessionUUID.toString());
-        if(sessionService.saveSession(session))
+        Session currentSession = new Session(sessionUUID.toString());
+        if(sessionService.saveSession(currentSession))
         {
             LOGGER.info(String.format("Session %s has been saved", sessionUUID));
             HttpClient httpClient = httpService.getHttpClient();
@@ -70,13 +71,27 @@ public class SessionCreateCommand implements Command
             {
                 LOGGER.info(String.format("Before executing post request"));
                 response = httpClient.execute(postRequest);
-                LOGGER.info(String.format("After executing post request.  Status code: %s", response.getStatusLine().getStatusCode()));
-                if(response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED)
+                int statusCode = response.getStatusLine().getStatusCode();
+                String responseBody = IOUtils.toString(response.getEntity().getContent());
+
+                if(statusCode == HttpStatus.SC_CREATED)
                 {
-                    boolean eventDeleted = eventService.deleteEvent(event);
                     LOGGER.info(String.format("Session %s created successfully", sessionUUID.toString()));
-                    LOGGER.info(String.format("Event was deleted: %s", eventDeleted));
+                    deleteEvent();
                 }
+                else if(statusCode == HttpStatus.SC_NOT_FOUND ||
+                        statusCode == HttpStatus.SC_BAD_REQUEST)
+                {
+                    // There's not a lot we can do about this, but delete the event to avoid infinite loops.
+                    deleteEvent();
+                    LOGGER.info(String.format("Session %s could not be created. Response is: %s ", currentSession.getSessionUuid(), responseBody));
+                }
+                else
+                {
+                    //Means it's a 500, in which case we retry
+                    LOGGER.info(String.format("Session %s could not be created. Response is: %s ", currentSession.getSessionUuid(), responseBody));
+                }
+
             } catch (IOException e)
             {
                 LOGGER.log(Level.SEVERE, String.format("Exception making http request to %s", postRequest.toString()), e);
@@ -94,5 +109,11 @@ public class SessionCreateCommand implements Command
                 }
             }
         }
+    }
+
+    private void deleteEvent()
+    {
+        boolean eventDeleted = eventService.deleteEvent(event);
+        LOGGER.info(String.format("Event was deleted: %s", eventDeleted));
     }
 }

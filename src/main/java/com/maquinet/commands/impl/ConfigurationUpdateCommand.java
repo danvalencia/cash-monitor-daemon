@@ -5,6 +5,7 @@ import com.maquinet.events.models.ConfigurationUpdateEvent;
 import com.maquinet.events.models.Event;
 import com.maquinet.services.HttpService;
 import com.maquinet.services.EventService;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -66,16 +67,25 @@ public class ConfigurationUpdateCommand implements Command
         try
         {
             response = httpClient.execute(putRequest);
-            LOGGER.info(String.format("After executing put request.  Status code: %s", response.getStatusLine().getStatusCode()));
+            int statusCode = response.getStatusLine().getStatusCode();
+            String responseBody = IOUtils.toString(response.getEntity().getContent());
+            LOGGER.info(String.format("After executing put request.  Status code: %s", statusCode));
 
             if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK)
             {
                 deleteEvent();
             }
-            else if(response.getStatusLine().getStatusCode() == HttpStatus.SC_INTERNAL_SERVER_ERROR)
+            else if(statusCode == HttpStatus.SC_NOT_FOUND ||
+                    statusCode == HttpStatus.SC_BAD_REQUEST)
             {
-                //ToDo: Print response body
-                LOGGER.severe(String.format("Internal server error trying to update server configuration"));
+                // There's not a lot we can do about this, but delete the event to avoid infinite loops.
+                deleteEvent();
+                LOGGER.info(String.format("Configuration for machine could not be updated. Response is: %s ", responseBody));
+            }
+            else
+            {
+                //Means it's a 500, in which case we retry
+                LOGGER.info(String.format("Configuration for machine could not be updated. Response is: %s ", responseBody));
             }
         }
         catch (IOException e)
