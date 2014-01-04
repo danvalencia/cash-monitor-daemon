@@ -120,30 +120,33 @@ public class DefaultEventWatcher implements EventWatcher
 
         try
         {
-            List<String> eventList = Files.readAllLines(this.fileToWatch, StandardCharsets.UTF_8);
-            Files.deleteIfExists(this.fileToWatch);
-
-            for (String eventString : eventList)
+            if(Files.exists(this.fileToWatch))
             {
-                List<String> eventAttributes = parseEventAttributes(eventString);
+                List<String> eventList = Files.readAllLines(this.fileToWatch, StandardCharsets.UTF_8);
+                Files.deleteIfExists(this.fileToWatch);
 
-                if(eventAttributes.size() > 0)
+                for (String eventString : eventList)
                 {
-                    final String eventName = eventAttributes.get(0);
+                    List<String> eventAttributes = parseEventAttributes(eventString);
 
-                    try
+                    if(eventAttributes.size() > 0)
                     {
-                        Event event = EventType.resolveEventType(eventName).createEvent(eventAttributes);
-                        events.add(event);
-                    }
-                    catch (RuntimeException e)
-                    {
-                        LOGGER.log(Level.SEVERE, String.format("Ignoring creation of event with name %s because of exception", eventName), e);
+                        final String eventName = eventAttributes.get(0);
+
+                        try
+                        {
+                            Event event = EventType.resolveEventType(eventName).createEvent(eventAttributes);
+                            events.add(event);
+                        }
+                        catch (RuntimeException e)
+                        {
+                            LOGGER.log(Level.SEVERE, String.format("Ignoring creation of event with name %s because of exception", eventName), e);
+                        }
                     }
                 }
-            }
 
-            this.eventProcessor.submitEvents(events);
+                this.eventProcessor.submitEvents(events);
+            }
         }
         catch (FileNotFoundException e)
         {
