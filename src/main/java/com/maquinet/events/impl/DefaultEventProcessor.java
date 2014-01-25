@@ -70,7 +70,6 @@ public class DefaultEventProcessor implements EventProcessor
                 else
                 {
                     EventType eventType = event.getEventType();
-                    LOGGER.info(String.format("Found Event with type: %s", eventType));
                     Command command = eventType.createCommand(event);
                     LOGGER.info(String.format("About to execute command %s for event %s", command, event.getEventType()));
                     command.run();

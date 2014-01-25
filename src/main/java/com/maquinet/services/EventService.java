@@ -22,9 +22,7 @@ public class EventService
 
     public Event getFirstEvent()
     {
-        Event firstEvent = eventDAO.findFirst();
-        LOGGER.fine(String.format("First event is %s", firstEvent));
-        return firstEvent;
+        return eventDAO.findFirst();
     }
 
     public List<Event> getAllEvents()

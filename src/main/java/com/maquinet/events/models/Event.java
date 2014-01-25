@@ -31,9 +31,7 @@ public abstract class Event
 {
     public static final String EVENT_STRING_SEPARATOR = ",";
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-
-    private static final Logger LOGGER = Logger.getLogger("Event");
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
 
@@ -42,6 +40,8 @@ public abstract class Event
     private Long id;
 
     private String name;
+
+    private Date createdAt;
 
     private Date eventCreationDate;
 
@@ -57,6 +57,7 @@ public abstract class Event
         this.attributes = attributes;
         this.eventType = eventType;
         this.name = attributes.get(0);
+        this.createdAt = new Date();
         this.eventCreationDate = parseEventCreationDate(attributes.get(1));
     }
 
@@ -72,9 +73,14 @@ public abstract class Event
         }
     }
 
-    public String formattedCreationDate()
+    public String formattedEventCreationDate()
     {
         return SIMPLE_DATE_FORMAT.format(getEventCreationDate());
+    }
+
+    public String formattedCreatedAtDate()
+    {
+        return SIMPLE_DATE_FORMAT.format(getCreatedAt());
     }
 
     // Getters and Setters
@@ -121,4 +127,13 @@ public abstract class Event
         this.eventType = eventType;
     }
 
+    public Date getCreatedAt()
+    {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt)
+    {
+        this.createdAt = createdAt;
+    }
 }

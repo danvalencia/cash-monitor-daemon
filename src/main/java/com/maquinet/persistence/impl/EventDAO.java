@@ -41,10 +41,12 @@ public class EventDAO implements EntityDAO<Event>
     public Event findFirst()
     {
         Query query = entityManager.createQuery(
-                        "SELECT e FROM Event e " +
-                        "ORDER BY e.eventCreationDate");
+                "SELECT e FROM Event e " +
+                        "ORDER BY e.id");
         query.setMaxResults(1);
+
         List<Event> events = query.getResultList();
+
         Event firstEvent = null;
         if(events.size() > 0)
         {

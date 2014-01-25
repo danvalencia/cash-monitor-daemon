@@ -130,12 +130,13 @@ public class DefaultEventWatcher implements EventWatcher
 
                     for (String eventString : eventList)
                     {
+                        LOGGER.info(String.format("Processing event %s", eventString));
+
                         List<String> eventAttributes = parseEventAttributes(eventString);
 
                         if(eventAttributes.size() > 0)
                         {
                             final String eventName = eventAttributes.get(0);
-
                             try
                             {
                                 Event event = EventType.resolveEventType(eventName).createEvent(eventAttributes);

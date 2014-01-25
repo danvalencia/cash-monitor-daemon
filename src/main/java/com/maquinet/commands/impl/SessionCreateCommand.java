@@ -63,7 +63,7 @@ public class SessionCreateCommand implements Command
             LOGGER.info(String.format("Service Endpoint is %s", endpoint));
             HttpPost postRequest = new HttpPost(endpoint);
             List<NameValuePair> nameValuePairs = new ArrayList<>();
-            nameValuePairs.add(new BasicNameValuePair("start_time", event.formattedCreationDate()));
+            nameValuePairs.add(new BasicNameValuePair("start_time", event.formattedEventCreationDate()));
             postRequest.setEntity(new UrlEncodedFormEntity(nameValuePairs, StandardCharsets.UTF_8));
             LOGGER.info(String.format("Post request is %s", postRequest.toString()));
             HttpResponse response = null;

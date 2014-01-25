@@ -68,7 +68,7 @@ public class SessionCloseCommand implements Command
 
             // Creation date is used as the end_time, because it refers to this event (SessionCloseEvent), and not
             // to the session.
-            nameValuePairs.add(new BasicNameValuePair("end_time", event.formattedCreationDate()));
+            nameValuePairs.add(new BasicNameValuePair("end_time", event.formattedEventCreationDate()));
             putRequest.setEntity(new UrlEncodedFormEntity(nameValuePairs, StandardCharsets.UTF_8));
 
             LOGGER.info(String.format("Put request is %s", putRequest.toString()));
