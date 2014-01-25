@@ -53,9 +53,10 @@ public class DefaultEventProcessor implements EventProcessor
         while (true)
         {
             lock.lock();
+            Event event;
             try
             {
-                Event event = eventService.getFirstEvent();
+                event = eventService.getFirstEvent();
                 if(event == null)
                 {
                     try
@@ -67,18 +68,20 @@ public class DefaultEventProcessor implements EventProcessor
                         e.printStackTrace();
                     }
                 }
-                else
-                {
-                    EventType eventType = event.getEventType();
-                    Command command = eventType.createCommand(event);
-                    LOGGER.info(String.format("About to execute command %s for event %s", command, event.getEventType()));
-                    command.run();
-                }
             }
             finally
             {
                 lock.unlock();
             }
+
+            if(event != null)
+            {
+                EventType eventType = event.getEventType();
+                Command command = eventType.createCommand(event);
+                LOGGER.info(String.format("About to execute command %s for event %s", command, event.getEventType()));
+                command.run();
+            }
+
         }
 
 
