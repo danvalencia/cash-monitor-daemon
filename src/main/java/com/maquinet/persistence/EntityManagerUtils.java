@@ -1,22 +1,32 @@
 package com.maquinet.persistence;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 /**
  * @author Daniel Valencia (danvalencia@gmail.com)
  */
 public class EntityManagerUtils
 {
-    private static final EntityManagerFactory entityManagerFactory;
+    private final EntityManagerFactory entityManagerFactory;
+    private ThreadLocal<EntityManager> entityManagerThreadLocal;
 
-    static
+    public EntityManagerUtils(EntityManagerFactory entityManagerFactory)
     {
-        entityManagerFactory = Persistence.createEntityManagerFactory("cashmonitor-ds");
+        this.entityManagerFactory = entityManagerFactory;
+
+        entityManagerThreadLocal = new ThreadLocal<EntityManager>(){
+            @Override
+            protected EntityManager initialValue()
+            {
+                return EntityManagerUtils.this.entityManagerFactory.createEntityManager();
+            }
+        };
     }
 
-    public static EntityManagerFactory getEntityManagerFactory()
+    public EntityManager getEntityManager()
     {
-        return entityManagerFactory;
+        return entityManagerThreadLocal.get();
     }
+
 }

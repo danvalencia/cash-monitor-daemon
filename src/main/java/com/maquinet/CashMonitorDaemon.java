@@ -3,7 +3,6 @@ package com.maquinet;
 import com.maquinet.events.EventProcessor;
 import com.maquinet.events.impl.DefaultEventProcessor;
 import com.maquinet.events.impl.DefaultEventWatcher;
-import com.maquinet.exceptions.EventWatcherException;
 import com.maquinet.services.HttpService;
 import com.maquinet.services.impl.CashMonitorHttpService;
 import com.maquinet.events.models.EventType;
@@ -16,12 +15,13 @@ import com.maquinet.services.SessionService;
 import org.apache.http.impl.client.HttpClients;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import static com.maquinet.CashMonitorProperties.*;
 
@@ -37,11 +37,13 @@ public class CashMonitorDaemon
         loadAndValidateSystemProperties();
 
         String fileToWatch = System.getProperty(EVENTS_FILE);
-        EntityManager entityManager = EntityManagerUtils.getEntityManagerFactory().createEntityManager();
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("cashmonitor-ds");
+        EntityManagerUtils entityManagerUtils = new EntityManagerUtils(entityManagerFactory);
 
-        EventDAO eventDAO = new EventDAO(entityManager);
+        EventDAO eventDAO = new EventDAO(entityManagerUtils);
         EventService eventService = new EventService(eventDAO);
-        SessionDAO sessionDAO = new SessionDAO(entityManager);
+
+        SessionDAO sessionDAO = new SessionDAO(entityManagerUtils);
         SessionService sessionService = new SessionService(sessionDAO);
 
         String cashmonitorEndpoint = System.getProperty(CASHMONITOR_ENDPOINT);

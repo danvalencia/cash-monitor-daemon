@@ -2,6 +2,7 @@ package com.maquinet.persistence.impl;
 
 import com.maquinet.models.Session;
 import com.maquinet.persistence.EntityDAO;
+import com.maquinet.persistence.EntityManagerUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -14,33 +15,33 @@ import java.util.logging.Logger;
  */
 public class SessionDAO implements EntityDAO<Session>
 {
-    private final EntityManager entityManager;
+    private final EntityManagerUtils entityManagerUtils;
 
     private static final Logger LOGGER = Logger.getLogger(SessionDAO.class.getName());
 
-    public SessionDAO(EntityManager entityManager)
+    public SessionDAO(EntityManagerUtils entityManagerUtils)
     {
-        this.entityManager = entityManager;
+        this.entityManagerUtils = entityManagerUtils;
     }
 
     @Override
     public Session get(int id)
     {
-        return entityManager.find(Session.class, id);
+        return getEntityManager().find(Session.class, id);
     }
 
     @Override
     public List<Session> findAll()
     {
-        List<Session> eventList = (List<Session>)entityManager.createQuery("SELECT s FROM Session s").getResultList();
+        List<Session> eventList = (List<Session>) getEntityManager().createQuery("SELECT s FROM Session s").getResultList();
         return eventList;
     }
 
     @Override
     public Session findFirst()
     {
-        Query query = entityManager.createQuery(
-                        "SELECT s FROM Session s " +
+        Query query = getEntityManager().createQuery(
+                "SELECT s FROM Session s " +
                         "ORDER BY s.createdDate");
         query.setMaxResults(1);
         List<Session> events = query.getResultList();
@@ -56,13 +57,13 @@ public class SessionDAO implements EntityDAO<Session>
     public boolean saveAll(List<Session> sessions)
     {
         boolean result = false;
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try
         {
             transaction.begin();
             for(Session session : sessions)
             {
-                entityManager.persist(session);
+                getEntityManager().persist(session);
             }
             transaction.commit();
             result = true;
@@ -79,11 +80,11 @@ public class SessionDAO implements EntityDAO<Session>
     public boolean save(Session session)
     {
         boolean result = false;
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try
         {
             transaction.begin();
-            entityManager.persist(session);
+            getEntityManager().persist(session);
             transaction.commit();
             result = true;
         } catch (Exception e)
@@ -100,11 +101,11 @@ public class SessionDAO implements EntityDAO<Session>
     {
         boolean result = false;
         LOGGER.info("Starting transaction");
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try
         {
             transaction.begin();
-            entityManager.remove(session);
+            getEntityManager().remove(session);
             transaction.commit();
             result = true;
         } catch (Exception e)
@@ -114,5 +115,10 @@ public class SessionDAO implements EntityDAO<Session>
             e.printStackTrace();
         }
         return result;
+    }
+
+    EntityManager getEntityManager()
+    {
+        return entityManagerUtils.getEntityManager();
     }
 }

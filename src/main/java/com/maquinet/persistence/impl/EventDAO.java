@@ -2,6 +2,7 @@ package com.maquinet.persistence.impl;
 
 import com.maquinet.events.models.Event;
 import com.maquinet.persistence.EntityDAO;
+import com.maquinet.persistence.EntityManagerUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -17,30 +18,30 @@ public class EventDAO implements EntityDAO<Event>
 {
     private static final Logger LOGGER = Logger.getLogger(EventDAO.class.getName());
 
-    private final EntityManager entityManager;
+    private final EntityManagerUtils entityManagerUtils;
 
-    public EventDAO(EntityManager entityManager)
+    public EventDAO(EntityManagerUtils entityManagerUtils)
     {
-        this.entityManager = entityManager;
+        this.entityManagerUtils = entityManagerUtils;
     }
 
     @Override
     public Event get(int id)
     {
-        return entityManager.find(Event.class, id);
+        return getEntityManager().find(Event.class, id);
     }
 
     @Override
     public List<Event> findAll()
     {
-        List<Event> eventList = (List<Event>)entityManager.createQuery("SELECT e FROM Event e").getResultList();
+        List<Event> eventList = (List<Event>) getEntityManager().createQuery("SELECT e FROM Event e").getResultList();
         return eventList;
     }
 
     @Override
     public Event findFirst()
     {
-        Query query = entityManager.createQuery(
+        Query query = getEntityManager().createQuery(
                 "SELECT e FROM Event e " +
                         "ORDER BY e.id");
         query.setMaxResults(1);
@@ -59,11 +60,11 @@ public class EventDAO implements EntityDAO<Event>
     public boolean save(Event event)
     {
         boolean result = false;
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try
         {
             transaction.begin();
-            entityManager.persist(event);
+            getEntityManager().persist(event);
             transaction.commit();
             result = true;
         } catch (Exception e)
@@ -79,11 +80,11 @@ public class EventDAO implements EntityDAO<Event>
     public boolean delete(Event event)
     {
         boolean result = false;
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = getEntityManager().getTransaction();
         try
         {
             transaction.begin();
-            entityManager.remove(event);
+            getEntityManager().remove(event);
             transaction.commit();
             result = true;
         } catch (Exception e)
@@ -101,13 +102,13 @@ public class EventDAO implements EntityDAO<Event>
         boolean result = false;
         if(events.size() > 0)
         {
-            EntityTransaction transaction = entityManager.getTransaction();
+            EntityTransaction transaction = getEntityManager().getTransaction();
             try
             {
                 transaction.begin();
                 for(Event event : events)
                 {
-                    entityManager.persist(event);
+                    getEntityManager().persist(event);
                 }
                 transaction.commit();
                 result = true;
@@ -120,4 +121,10 @@ public class EventDAO implements EntityDAO<Event>
         }
         return result;
     }
+
+    EntityManager getEntityManager()
+    {
+        return entityManagerUtils.getEntityManager();
+    }
+
 }
