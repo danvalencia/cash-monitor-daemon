@@ -15,7 +15,7 @@ public class Session
 {
     private String sessionUuid;
     private Long id;
-    private Long coinCount = new Long(1);
+    private Long coinCount = new Long(0);
     private Date createdDate = new Date();
     private Date endDate;
 
