@@ -26,11 +26,6 @@ public class Session
         this.sessionUuid = sessionUuid;
     }
 
-    public void incrementCoinCount()
-    {
-        coinCount++;
-    }
-
     @Id
     @GeneratedValue
     public Long getId()

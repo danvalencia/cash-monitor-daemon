@@ -57,8 +57,6 @@ public class CoinInsertCommand implements Command
         }
         else
         {
-            currentSession.incrementCoinCount();
-
             HttpClient httpClient = httpService.getHttpClient();
 
             String endpoint = String.format("%s/api/machines/%s/sessions/%s",
@@ -69,7 +67,8 @@ public class CoinInsertCommand implements Command
             HttpPut putRequest = new HttpPut(endpoint);
 
             List<NameValuePair> nameValuePairs = new ArrayList<>();
-            nameValuePairs.add(new BasicNameValuePair("coin_count", currentSession.getCoinCount().toString()));
+            long coinCount = currentSession.getCoinCount() + 1;
+            nameValuePairs.add(new BasicNameValuePair("coin_count", Long.toString(coinCount)));
             nameValuePairs.add(new BasicNameValuePair("global_coin_count", globalCoinCount.toString()));
 
             putRequest.setEntity(new UrlEncodedFormEntity(nameValuePairs, StandardCharsets.UTF_8));
@@ -88,6 +87,7 @@ public class CoinInsertCommand implements Command
                 {
                     deleteEvent();
                     // Saving the current session to disk to update the coin count
+                    currentSession.setCoinCount(coinCount);
                     boolean sessionSaved = sessionService.saveSession(currentSession);
                     LOGGER.info(String.format("After updating coin count sesssion has been saved: %s", sessionSaved));
                 }
