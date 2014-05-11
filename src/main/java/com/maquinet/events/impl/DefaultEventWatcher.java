@@ -9,10 +9,13 @@ import com.sun.nio.file.SensitivityWatchEventModifier;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
@@ -100,6 +103,7 @@ public class DefaultEventWatcher implements EventWatcher
 
                 if(path.equals(this.fileToWatch.getFileName()))
                 {
+
                     retrieveEventsFromFile();
                 }
             }
@@ -122,35 +126,46 @@ public class DefaultEventWatcher implements EventWatcher
         {
             if(Files.exists(this.fileToWatch))
             {
-                List<String> eventList = Files.readAllLines(this.fileToWatch, StandardCharsets.UTF_8);
-
-                if(eventList.size() > 0)
+                FileLock lock = FileChannel.open(this.fileToWatch, StandardOpenOption.READ, StandardOpenOption.WRITE).lock();
+                try
                 {
-                    Files.deleteIfExists(this.fileToWatch);
+                    pause(100);
 
-                    for (String eventString : eventList)
+                    List<String> eventList = Files.readAllLines(this.fileToWatch, StandardCharsets.UTF_8);
+
+                    if(eventList.size() > 0)
                     {
-                        LOGGER.info(String.format("Processing event %s", eventString));
+                        Files.deleteIfExists(this.fileToWatch);
 
-                        List<String> eventAttributes = parseEventAttributes(eventString);
-
-                        if(eventAttributes.size() > 0)
+                        for (String eventString : eventList)
                         {
-                            final String eventName = eventAttributes.get(0);
-                            try
+                            LOGGER.info(String.format("Processing event %s", eventString));
+
+                            List<String> eventAttributes = parseEventAttributes(eventString);
+
+                            if(eventAttributes.size() > 0)
                             {
-                                Event event = EventType.resolveEventType(eventName).createEvent(eventAttributes);
-                                events.add(event);
-                            }
-                            catch (RuntimeException e)
-                            {
-                                LOGGER.log(Level.SEVERE, String.format("Ignoring creation of event with name %s because of exception", eventName), e);
+                                final String eventName = eventAttributes.get(0);
+                                try
+                                {
+                                    Event event = EventType.resolveEventType(eventName).createEvent(eventAttributes);
+                                    events.add(event);
+                                }
+                                catch (RuntimeException e)
+                                {
+                                    LOGGER.log(Level.SEVERE, String.format("Ignoring creation of event with name %s because of exception", eventName), e);
+                                }
                             }
                         }
-                    }
 
-                    this.eventProcessor.submitEvents(events);
+                        this.eventProcessor.submitEvents(events);
+                    }
                 }
+                finally
+                {
+                    lock.release();
+                }
+
             }
         }
         catch (FileNotFoundException e)
@@ -160,6 +175,17 @@ public class DefaultEventWatcher implements EventWatcher
         catch (IOException e)
         {
             LOGGER.log(Level.SEVERE, String.format("There was an error reading the file %s", this.fileToWatch.toString()), e);
+        }
+    }
+
+    private void pause(int millis)
+    {
+        try
+        {
+            Thread.sleep(millis);
+        } catch (InterruptedException e)
+        {
+            LOGGER.log(Level.WARNING, String.format("Thread interrupted while pausing for %d seconds", millis), e);
         }
     }
 
