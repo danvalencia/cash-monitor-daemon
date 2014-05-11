@@ -35,9 +35,7 @@ class SessionCreateCommandTest extends Specification {
 
     def setup() {
         httpService = new CashMonitorHttpService(mockHttpClient, cashMonitorEndpoint)
-    }
 
-    def "should delete event when remote session creation is successfull"() {
         setup:
         def eventAttributes = ["sesion_creada", "2014-05-10 10:18:51.006"]
         event = EventType.SESSION_CREATE.createEvent(eventAttributes)
@@ -47,8 +45,11 @@ class SessionCreateCommandTest extends Specification {
         mockHttpResponse.getStatusLine() >> statusLine
         mockHttpResponse.getEntity() >> entity
         entity.getContent() >> bodyInputStream
-        statusLine.getStatusCode() >> HttpStatus.SC_CREATED
+    }
 
+    def "should delete event when remote session creation is successfull"() {
+        setup:
+        statusLine.getStatusCode() >> HttpStatus.SC_CREATED
 
         when:
         sessionCreateCommand.run()
@@ -60,16 +61,7 @@ class SessionCreateCommandTest extends Specification {
 
     def "should not delete event when remote session creation call fails"() {
         setup:
-        def eventAttributes = ["sesion_creada", "2014-05-10 10:18:51.006"]
-        event = EventType.SESSION_CREATE.createEvent(eventAttributes)
-        sessionCreateCommand = new SessionCreateCommand(httpService, sessionService, eventService, event)
-        sessionService.saveSession(_ as Session) >> true
-        mockHttpClient.execute(_ as HttpPost) >> mockHttpResponse
-        mockHttpResponse.getStatusLine() >> statusLine
-        mockHttpResponse.getEntity() >> entity
-        entity.getContent() >> bodyInputStream
         statusLine.getStatusCode() >> HttpStatus.SC_INTERNAL_SERVER_ERROR
-
 
         when:
         sessionCreateCommand.run()
@@ -77,7 +69,6 @@ class SessionCreateCommandTest extends Specification {
         then:
         1 * sessionService.deleteCurrentSession()
         0 * eventService.deleteEvent(_ as Event)
-
     }
 
 }
