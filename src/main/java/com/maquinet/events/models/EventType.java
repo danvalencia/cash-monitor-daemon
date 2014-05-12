@@ -4,7 +4,6 @@ import com.maquinet.commands.Command;
 import com.maquinet.commands.impl.EmptyCommand;
 import com.maquinet.commands.impl.CoinInsertCommand;
 import com.maquinet.commands.impl.ConfigurationUpdateCommand;
-import com.maquinet.commands.impl.CounterResetCommand;
 import com.maquinet.commands.impl.SessionCloseCommand;
 import com.maquinet.commands.impl.SessionCreateCommand;
 import com.maquinet.services.HttpService;
@@ -58,20 +57,6 @@ public enum EventType
         public Command createCommand(Event event)
         {
             return new CoinInsertCommand(getHttpService(), getSessionService(), getEventService(), event);
-        }
-    },
-    COUNTER_RESET("contador_reseteado")
-    {
-        @Override
-        public Event createEvent(List<String> eventAttributes)
-        {
-            return new CounterResetEvent(eventAttributes, this);
-        }
-
-        @Override
-        public Command createCommand(Event event)
-        {
-            return new CounterResetCommand(getHttpService(), getSessionService(), getEventService(), event);
         }
     },
     CONFIG_UPDATE("configuracion_actualizada")
