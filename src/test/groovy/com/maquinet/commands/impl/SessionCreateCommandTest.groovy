@@ -12,6 +12,7 @@ import org.apache.http.HttpResponse
 import org.apache.http.HttpStatus
 import org.apache.http.StatusLine
 import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpPost
 import spock.lang.Specification
 
@@ -28,7 +29,7 @@ class SessionCreateCommandTest extends Specification {
     def sessionService = Mock(SessionService)
     def eventService = Mock(EventService)
     def mockHttpClient = Mock(HttpClient)
-    def mockHttpResponse = Mock(HttpResponse)
+    def mockHttpResponse = Mock(CloseableHttpResponse)
     def statusLine = Mock(StatusLine)
     def entity = Mock(HttpEntity)
     def bodyInputStream = new ByteArrayInputStream(new byte[0])
@@ -47,7 +48,7 @@ class SessionCreateCommandTest extends Specification {
         entity.getContent() >> bodyInputStream
     }
 
-    def "should delete event when remote session creation is successfull"() {
+    def "should delete event when a 201 response is returned (Created)"() {
         setup:
         statusLine.getStatusCode() >> HttpStatus.SC_CREATED
 
@@ -57,9 +58,37 @@ class SessionCreateCommandTest extends Specification {
         then:
         1 * sessionService.deleteCurrentSession()
         1 * eventService.deleteEvent(_ as Event)
+        1 * mockHttpResponse.close()
     }
 
-    def "should not delete event when remote session creation call fails"() {
+    def "should delete local event when a 404 response is returned (Not Found)"() {
+        setup:
+        statusLine.getStatusCode() >> HttpStatus.SC_NOT_FOUND
+
+        when:
+        sessionCreateCommand.run()
+
+        then:
+        1 * sessionService.deleteCurrentSession()
+        1 * eventService.deleteEvent(_ as Event)
+        1 * mockHttpResponse.close()
+    }
+
+    def "should delete local event when a 400 response is returned (Bad Request)"() {
+        setup:
+        statusLine.getStatusCode() >> HttpStatus.SC_NOT_FOUND
+
+        when:
+        sessionCreateCommand.run()
+
+        then:
+        1 * sessionService.deleteCurrentSession()
+        1 * eventService.deleteEvent(_ as Event)
+        1 * mockHttpResponse.close()
+    }
+
+
+    def "should not delete event when there's a 50x response (Internal Server Error)"() {
         setup:
         statusLine.getStatusCode() >> HttpStatus.SC_INTERNAL_SERVER_ERROR
 
@@ -69,6 +98,8 @@ class SessionCreateCommandTest extends Specification {
         then:
         1 * sessionService.deleteCurrentSession()
         0 * eventService.deleteEvent(_ as Event)
+        1 * mockHttpResponse.close()
     }
+
 
 }
