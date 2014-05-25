@@ -28,21 +28,11 @@ import static com.maquinet.CashMonitorProperties.*;
 public class SessionCreateCommand extends AbstractHttpCommand implements Command
 {
     private static final Logger LOGGER = Logger.getLogger(SessionCreateCommand.class.getName());
-
-    private final SessionService sessionService;
-    private final HttpService httpService;
-    private final EventService eventService;
-    private final Event event;
     private UUID sessionUUID;
 
     public SessionCreateCommand(HttpService httpService, SessionService sessionService, EventService eventService, Event event)
     {
         super(httpService, sessionService, eventService, event);
-
-        this.sessionService = sessionService;
-        this.httpService = httpService;
-        this.eventService = eventService;
-        this.event = event;
     }
 
     @Override

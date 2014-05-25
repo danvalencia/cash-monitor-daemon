@@ -27,21 +27,13 @@ import static com.maquinet.CashMonitorProperties.MACHINE_UUID;
 public class SessionCloseCommand extends AbstractHttpCommand implements Command
 {
     private static final Logger LOGGER = Logger.getLogger(SessionCloseCommand.class.getName());
-
-    private final SessionService sessionService;
-    private final HttpService httpService;
-    private final EventService eventService;
-    private final Event event;
-    Session currentSession;
+    private final Session currentSession;
 
 
     public SessionCloseCommand(HttpService httpService, SessionService sessionService, EventService eventService, Event event)
     {
         super(httpService, sessionService, eventService, event);
-        this.sessionService = sessionService;
-        this.httpService = httpService;
-        this.eventService = eventService;
-        this.event = event;
+        currentSession = sessionService.getCurrentSession();
     }
 
     @Override
@@ -101,8 +93,6 @@ public class SessionCloseCommand extends AbstractHttpCommand implements Command
     @Override
     public boolean beforeRequest()
     {
-        currentSession = sessionService.getCurrentSession();
-
         if (currentSession == null)
         {
             eventService.deleteEvent(event);

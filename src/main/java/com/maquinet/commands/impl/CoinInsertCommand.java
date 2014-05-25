@@ -34,23 +34,14 @@ public class CoinInsertCommand extends AbstractHttpCommand implements Command
 {
     private static final Logger LOGGER = Logger.getLogger(CoinInsertCommand.class.getName());
 
-    private final SessionService sessionService;
-    private final HttpService httpService;
-    private final EventService eventService;
-    private final Event event;
     private Long globalCoinCount;
     private Long newCoinCount;
-    private Session currentSession;
+    private final Session currentSession;
 
     public CoinInsertCommand(HttpService httpService, SessionService sessionService, EventService eventService, Event event)
     {
         super(httpService, sessionService, eventService, event);
-        this.sessionService = sessionService;
-        this.httpService = httpService;
-        this.eventService = eventService;
-        this.event = event;
         this.currentSession = this.sessionService.getCurrentSession();
-
     }
 
     @Override
@@ -119,7 +110,6 @@ public class CoinInsertCommand extends AbstractHttpCommand implements Command
         }
 
         globalCoinCount = ((CoinInsertEvent) event).getGlobalCoinCount();
-        currentSession = sessionService.getCurrentSession();
         newCoinCount = currentSession.getCoinCount() + 1;
 
         return true;

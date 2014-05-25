@@ -18,10 +18,10 @@ import java.io.IOException;
  */
 public abstract class AbstractHttpCommand implements Command
 {
-    private final SessionService sessionService;
-    private final HttpService httpService;
-    private final EventService eventService;
-    private final Event event;
+    protected final SessionService sessionService;
+    protected final HttpService httpService;
+    protected final EventService eventService;
+    protected final Event event;
 
     public AbstractHttpCommand(HttpService httpService, SessionService sessionService, EventService eventService, Event event)
     {

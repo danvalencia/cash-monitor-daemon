@@ -38,7 +38,6 @@ class SessionCloseCommandTest extends Specification {
         httpService = new CashMonitorHttpService(mockHttpClient, cashMonitorEndpoint)
         def eventAttributes = ["sesion_cerrada", "2014-05-10 10:01:14.973"]
         event = EventType.SESSION_CLOSE.createEvent(eventAttributes)
-        sessionCloseCommand = new SessionCloseCommand(httpService, sessionService, eventService, event)
 
         setup:
         mockHttpClient.execute(_ as HttpPut) >> mockHttpResponse
@@ -49,8 +48,9 @@ class SessionCloseCommandTest extends Specification {
 
     def "should delete event when a session exists and response is 200 (OK)"() {
         setup:
-        sessionService.getCurrentSession() >> currentSession
         statusLine.getStatusCode() >> HttpStatus.SC_OK
+        sessionService.getCurrentSession() >> currentSession
+        sessionCloseCommand = new SessionCloseCommand(httpService, sessionService, eventService, event)
 
         when:
         sessionCloseCommand.run()
@@ -65,8 +65,9 @@ class SessionCloseCommandTest extends Specification {
     // Creo que tenemos que borrar la sesión actual
     def "should delete local event when a 404 response is returned (Not Found)"() {
         setup:
-        sessionService.getCurrentSession() >> currentSession
         statusLine.getStatusCode() >> HttpStatus.SC_NOT_FOUND
+        sessionService.getCurrentSession() >> currentSession
+        sessionCloseCommand = new SessionCloseCommand(httpService, sessionService, eventService, event)
 
         when:
         sessionCloseCommand.run()
@@ -79,8 +80,9 @@ class SessionCloseCommandTest extends Specification {
     // Verificar esta prueba también, por las mismas razones que la anterior
     def "should delete local event when a 400 response is returned (Bad Request)"() {
         setup:
-        sessionService.getCurrentSession() >> currentSession
         statusLine.getStatusCode() >> HttpStatus.SC_BAD_REQUEST
+        sessionService.getCurrentSession() >> currentSession
+        sessionCloseCommand = new SessionCloseCommand(httpService, sessionService, eventService, event)
 
         when:
         sessionCloseCommand.run()
@@ -93,8 +95,9 @@ class SessionCloseCommandTest extends Specification {
 
     def "If we get a 50x response (Internal Server Error), we retry instead; we don't delete event."() {
         setup:
-        sessionService.getCurrentSession() >> currentSession
         statusLine.getStatusCode() >> HttpStatus.SC_INTERNAL_SERVER_ERROR
+        sessionService.getCurrentSession() >> currentSession
+        sessionCloseCommand = new SessionCloseCommand(httpService, sessionService, eventService, event)
 
         when:
         sessionCloseCommand.run()
@@ -107,6 +110,8 @@ class SessionCloseCommandTest extends Specification {
     def "If current session is null (should never happen), we delete event since it's invalid at this point"() {
         setup:
         sessionService.getCurrentSession() >> null
+        sessionCloseCommand = new SessionCloseCommand(httpService, sessionService, eventService, event)
+
 
         when:
         sessionCloseCommand.run()
