@@ -45,7 +45,7 @@ public abstract class AbstractHttpCommand implements Command
                 handleResponse(response);
             } catch (IOException e)
             {
-                handleException(response);
+                handleException(response, e);
             } finally
             {
                 if(response != null && response instanceof CloseableHttpResponse)
@@ -65,6 +65,6 @@ public abstract class AbstractHttpCommand implements Command
 
     public abstract HttpUriRequest buildHttpRequest();
     public abstract void handleResponse(HttpResponse httpResponse);
-    public abstract void handleException(HttpResponse httpResponse);
+    public abstract void handleException(HttpResponse httpResponse, Exception exception);
     public abstract boolean beforeRequest();
 }

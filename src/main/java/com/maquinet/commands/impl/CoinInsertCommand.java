@@ -90,7 +90,7 @@ public class CoinInsertCommand extends AbstractHttpCommand implements Command
     }
 
     @Override
-    public void handleException(HttpResponse httpResponse)
+    public void handleException(HttpResponse httpResponse, Exception exception)
     {
 
     }
