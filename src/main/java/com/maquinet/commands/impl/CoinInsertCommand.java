@@ -3,29 +3,24 @@ package com.maquinet.commands.impl;
 import com.maquinet.commands.Command;
 import com.maquinet.events.models.CoinInsertEvent;
 import com.maquinet.events.models.Event;
-import com.maquinet.services.HttpService;
 import com.maquinet.models.Session;
 import com.maquinet.services.EventService;
+import com.maquinet.services.HttpService;
 import com.maquinet.services.SessionService;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.maquinet.CashMonitorProperties.*;
+import static com.maquinet.CashMonitorProperties.MACHINE_UUID;
 
 /**
  * @author Daniel Valencia (danvalencia@gmail.com)

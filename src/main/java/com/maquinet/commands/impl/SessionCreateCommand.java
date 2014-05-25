@@ -1,10 +1,10 @@
 package com.maquinet.commands.impl;
 
 import com.maquinet.commands.Command;
-import com.maquinet.services.HttpService;
 import com.maquinet.events.models.Event;
 import com.maquinet.models.Session;
 import com.maquinet.services.EventService;
+import com.maquinet.services.HttpService;
 import com.maquinet.services.SessionService;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import static com.maquinet.CashMonitorProperties.*;
+import static com.maquinet.CashMonitorProperties.MACHINE_UUID;
 
 /**
  * @author Daniel Valencia (danvalencia@gmail.com)
