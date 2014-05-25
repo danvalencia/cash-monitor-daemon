@@ -38,7 +38,6 @@ class CoinInsertCommandTest extends Specification {
         httpService = new CashMonitorHttpService(mockHttpClient, cashMonitorEndpoint)
         def eventAttributes = ["moneda_insertada", "2014-05-10 10:00:52.723", "1"]
         event = EventType.COIN_INSERT.createEvent(eventAttributes)
-        coinInsertCommand = new CoinInsertCommand(httpService, sessionService, eventService, event)
 
         setup:
         mockHttpClient.execute(_ as HttpPut) >> mockHttpResponse
@@ -52,6 +51,7 @@ class CoinInsertCommandTest extends Specification {
         setup:
         sessionService.getCurrentSession() >> currentSession
         statusLine.getStatusCode() >> HttpStatus.SC_OK
+        coinInsertCommand = new CoinInsertCommand(httpService, sessionService, eventService, event)
 
         when:
         coinInsertCommand.run()
@@ -69,6 +69,7 @@ class CoinInsertCommandTest extends Specification {
         setup:
         sessionService.getCurrentSession() >> currentSession
         statusLine.getStatusCode() >> HttpStatus.SC_NOT_FOUND
+        coinInsertCommand = new CoinInsertCommand(httpService, sessionService, eventService, event)
 
         when:
         coinInsertCommand.run()
@@ -83,6 +84,7 @@ class CoinInsertCommandTest extends Specification {
         setup:
         sessionService.getCurrentSession() >> currentSession
         statusLine.getStatusCode() >> HttpStatus.SC_BAD_REQUEST
+        coinInsertCommand = new CoinInsertCommand(httpService, sessionService, eventService, event)
 
         when:
         coinInsertCommand.run()
@@ -97,6 +99,7 @@ class CoinInsertCommandTest extends Specification {
         setup:
         sessionService.getCurrentSession() >> currentSession
         statusLine.getStatusCode() >> HttpStatus.SC_INTERNAL_SERVER_ERROR
+        coinInsertCommand = new CoinInsertCommand(httpService, sessionService, eventService, event)
 
         when:
         coinInsertCommand.run()
@@ -109,6 +112,7 @@ class CoinInsertCommandTest extends Specification {
     def "If current session is null (should never happen), we delete event since it's invalid at this point"() {
         setup:
         sessionService.getCurrentSession() >> null
+        coinInsertCommand = new CoinInsertCommand(httpService, sessionService, eventService, event)
 
         when:
         coinInsertCommand.run()

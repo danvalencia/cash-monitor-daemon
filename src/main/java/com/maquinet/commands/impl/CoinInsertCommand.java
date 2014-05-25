@@ -15,6 +15,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ import static com.maquinet.CashMonitorProperties.*;
 /**
  * @author Daniel Valencia (danvalencia@gmail.com)
  */
-public class CoinInsertCommand implements Command
+public class CoinInsertCommand extends AbstractHttpCommand implements Command
 {
     private static final Logger LOGGER = Logger.getLogger(CoinInsertCommand.class.getName());
 
@@ -37,98 +38,91 @@ public class CoinInsertCommand implements Command
     private final HttpService httpService;
     private final EventService eventService;
     private final Event event;
+    private Long globalCoinCount;
+    private Long newCoinCount;
+    private Session currentSession;
 
     public CoinInsertCommand(HttpService httpService, SessionService sessionService, EventService eventService, Event event)
     {
+        super(httpService, sessionService, eventService, event);
         this.sessionService = sessionService;
         this.httpService = httpService;
         this.eventService = eventService;
         this.event = event;
+        this.currentSession = this.sessionService.getCurrentSession();
+
     }
 
     @Override
-    public void run()
+    public HttpUriRequest buildHttpRequest()
     {
-        Long globalCoinCount = ((CoinInsertEvent) event).getGlobalCoinCount();
-        Session currentSession = sessionService.getCurrentSession();
-        if(currentSession == null)
+        String endpoint = String.format("%s/api/machines/%s/sessions/%s",
+                httpService.getServiceEndpoint(),
+                System.getProperty(MACHINE_UUID),
+                currentSession.getSessionUuid());
+
+        HttpPut putRequest = new HttpPut(endpoint);
+
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
+        long coinCount = currentSession.getCoinCount() + 1;
+        nameValuePairs.add(new BasicNameValuePair("coin_count", Long.toString(coinCount)));
+        nameValuePairs.add(new BasicNameValuePair("global_coin_count", globalCoinCount.toString()));
+
+        putRequest.setEntity(new UrlEncodedFormEntity(nameValuePairs, StandardCharsets.UTF_8));
+
+        LOGGER.info(String.format("Put request is %s", putRequest.toString()));
+
+        return putRequest;
+    }
+
+    @Override
+    public void handleResponse(HttpResponse httpResponse)
+    {
+        int statusCode = httpResponse.getStatusLine().getStatusCode();
+
+        if(statusCode == HttpStatus.SC_OK)
         {
-            deleteEvent();
+            eventService.deleteEvent(event);
+            // Saving the current session to disk to update the coin count
+            currentSession.setCoinCount(newCoinCount);
+            boolean sessionSaved = sessionService.saveSession(currentSession);
+            LOGGER.info(String.format("After updating coin count sesssion has been saved: %s", sessionSaved));
+        }
+        else if(statusCode == HttpStatus.SC_NOT_FOUND ||
+                statusCode == HttpStatus.SC_BAD_REQUEST)
+        {
+            // There's not a lot we can do about this, but delete the event to avoid infinite loops.
+            eventService.deleteEvent(event);
+            LOGGER.info(String.format("Session %s could not be updated. Response is: %s ", currentSession.getSessionUuid(), httpResponse));
         }
         else
         {
-            HttpClient httpClient = httpService.getHttpClient();
-
-            String endpoint = String.format("%s/api/machines/%s/sessions/%s",
-                    httpService.getServiceEndpoint(),
-                    System.getProperty(MACHINE_UUID),
-                    currentSession.getSessionUuid());
-
-            HttpPut putRequest = new HttpPut(endpoint);
-
-            List<NameValuePair> nameValuePairs = new ArrayList<>();
-            long coinCount = currentSession.getCoinCount() + 1;
-            nameValuePairs.add(new BasicNameValuePair("coin_count", Long.toString(coinCount)));
-            nameValuePairs.add(new BasicNameValuePair("global_coin_count", globalCoinCount.toString()));
-
-            putRequest.setEntity(new UrlEncodedFormEntity(nameValuePairs, StandardCharsets.UTF_8));
-
-            LOGGER.info(String.format("Put request is %s", putRequest.toString()));
-            HttpResponse response = null;
-            try
-            {
-                response = httpClient.execute(putRequest);
-                int statusCode = response.getStatusLine().getStatusCode();
-                String responseBody = IOUtils.toString(response.getEntity().getContent());
-
-                LOGGER.info(String.format("After executing put request.  Status code: %s", statusCode));
-
-                if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK)
-                {
-                    deleteEvent();
-                    // Saving the current session to disk to update the coin count
-                    currentSession.setCoinCount(coinCount);
-                    boolean sessionSaved = sessionService.saveSession(currentSession);
-                    LOGGER.info(String.format("After updating coin count sesssion has been saved: %s", sessionSaved));
-                }
-                else if(statusCode == HttpStatus.SC_NOT_FOUND ||
-                        statusCode == HttpStatus.SC_BAD_REQUEST)
-                {
-                    // There's not a lot we can do about this, but delete the event to avoid infinite loops.
-                    deleteEvent();
-                    LOGGER.info(String.format("Session %s could not be updated. Response is: %s ", currentSession.getSessionUuid(), responseBody));
-                }
-                else
-                {
-                    //Means it's a 500, in which case we retry
-                    LOGGER.info(String.format("Session %s could not be updated. Response is: %s ", currentSession.getSessionUuid(), responseBody));
-                }
-
-            }
-            catch (IOException e)
-            {
-                LOGGER.log(Level.SEVERE, String.format("Exception making http request to %s", putRequest.toString()), e);
-            }
-            finally
-            {
-                if(response != null && response instanceof CloseableHttpResponse)
-                {
-                    try
-                    {
-                        ((CloseableHttpResponse) response).close();
-                    }
-                    catch (IOException e)
-                    {
-                        LOGGER.severe(String.format("Error trying to close response for request %s", putRequest.toString()));
-                    }
-                }
-            }
+            //Means it's a 500, in which case we retry
+            LOGGER.info(String.format("Session %s could not be updated. Response is: %s ", currentSession.getSessionUuid(), httpResponse));
         }
+
     }
 
-    private void deleteEvent()
+    @Override
+    public void handleException(HttpResponse httpResponse)
     {
-        boolean eventDeleted = eventService.deleteEvent(event);
-        LOGGER.info(String.format("Coin Insert Event was deleted: %s", eventDeleted));
+
     }
+
+    @Override
+    public boolean beforeRequest()
+    {
+        if(currentSession == null)
+        {
+            eventService.deleteEvent(event);
+            return false;
+        }
+
+        globalCoinCount = ((CoinInsertEvent) event).getGlobalCoinCount();
+        currentSession = sessionService.getCurrentSession();
+        newCoinCount = currentSession.getCoinCount() + 1;
+
+        return true;
+    }
+
 }
