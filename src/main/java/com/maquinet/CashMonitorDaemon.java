@@ -14,7 +14,6 @@ import com.maquinet.services.EventService;
 import com.maquinet.services.SessionService;
 import org.apache.http.impl.client.HttpClients;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import java.io.FileInputStream;
@@ -23,6 +22,7 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
+
 import static com.maquinet.CashMonitorProperties.*;
 
 /**
@@ -63,7 +63,7 @@ public class CashMonitorDaemon
     private static void loadAndValidateSystemProperties()
     {
         String propertiesFilePath = System.getProperty(CASHMONITOR_PROPERTIES);
-        if(propertiesFilePath == null)
+        if (propertiesFilePath == null)
         {
             usage();
             System.exit(1);
@@ -73,25 +73,22 @@ public class CashMonitorDaemon
         {
             Properties systemProperties = System.getProperties();
             systemProperties.load(new FileInputStream(propertiesFilePath));
-            if(systemProperties.get(MACHINE_UUID) == null)
+            if (systemProperties.get(MACHINE_UUID) == null)
             {
                 LOGGER.severe(String.format("Property %s is required", MACHINE_UUID));
                 System.exit(1);
-            }
-            else if(systemProperties.get(CASHMONITOR_ENDPOINT) == null)
+            } else if (systemProperties.get(CASHMONITOR_ENDPOINT) == null)
             {
                 LOGGER.severe(String.format("Property %s is required", CASHMONITOR_ENDPOINT));
                 System.exit(1);
-            }
-            else if(systemProperties.get(EVENTS_FILE) == null)
+            } else if (systemProperties.get(EVENTS_FILE) == null)
             {
                 LOGGER.severe(String.format("Property %s is required", EVENTS_FILE));
                 System.exit(1);
             }
 
 
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             LOGGER.severe(String.format("Unable to load properties file with path %s", CASHMONITOR_PROPERTIES));
             System.exit(1);
@@ -100,7 +97,7 @@ public class CashMonitorDaemon
 
     private static void initEventTypes(SessionService sessionService, HttpService httpService, EventService eventService)
     {
-        for(EventType eventType : EventType.values())
+        for (EventType eventType : EventType.values())
         {
             eventType.setSessionService(sessionService);
             eventType.setHttpService(httpService);

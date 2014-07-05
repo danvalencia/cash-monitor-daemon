@@ -126,11 +126,13 @@ public class DefaultEventWatcher implements EventWatcher
         {
             if(Files.exists(this.fileToWatch))
             {
-                FileLock lock = FileChannel.open(this.fileToWatch, StandardOpenOption.READ, StandardOpenOption.WRITE).lock();
+                FileChannel fileChannel = FileChannel.open(this.fileToWatch, StandardOpenOption.READ, StandardOpenOption.WRITE);
+                FileLock lock = acquireLock(fileChannel);
+
+                LOGGER.info(String.format("The value of the Lock is %s", lock));
+
                 try
                 {
-                    pause(100);
-
                     List<String> eventList = Files.readAllLines(this.fileToWatch, StandardCharsets.UTF_8);
 
                     if(eventList.size() > 0)
@@ -176,6 +178,16 @@ public class DefaultEventWatcher implements EventWatcher
         {
             LOGGER.log(Level.SEVERE, String.format("There was an error reading the file %s", this.fileToWatch.toString()), e);
         }
+    }
+
+    private FileLock acquireLock(FileChannel fileChannel) throws IOException
+    {
+        FileLock lock;
+        do {
+            lock = fileChannel.tryLock();
+        }while(lock == null);
+
+        return lock;
     }
 
     private void pause(int millis)
